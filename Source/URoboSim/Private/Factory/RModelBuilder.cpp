@@ -1,4 +1,5 @@
 #include "Factory/RModelBuilder.h"
+#include "ROSCommunication/RROSCommunicationComponent.h"
 #include "Controller/RControllerComponent.h"
 #include "Controller/ControllerType/BaseController/RBaseController.h"
 
@@ -26,6 +27,8 @@ void URModelBuilder::Load(USDFModel* InModelDescription, ARModel* OutModel,FVect
       LoadJoints();
       BuildKinematicTree();
       SetupPlugins();
+      SetupROS();
+      SetupControl();
     }
 }
 
@@ -160,4 +163,18 @@ void URModelBuilder::SetupPlugins()
           UE_LOG(LogTemp, Error, TEXT("Joint  to Mimic %s not found"), *Plugin->Joint);
         }
     }
+}
+
+void URModelBuilder::SetupROS()
+{
+  URROSCommunicationComponent* ROSCommunicationComponent = NewObject<URROSCommunicationComponent>(Model, TEXT("ROSCommunicationComponent"));
+  ROSCommunicationComponent->ROSCommunication.WebsocketIPAddr = TEXT("127.0.0.1");
+  ROSCommunicationComponent->ROSCommunication.WebsocketPort = 9090;
+
+  ROSCommunicationComponent->RegisterComponent();
+}
+void URModelBuilder::SetupControl()
+{
+  URControllerComponent* ControllerComponent = NewObject<URControllerComponent>(Model, TEXT("ControllerComponent"));
+  ControllerComponent->RegisterComponent();
 }

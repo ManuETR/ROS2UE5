@@ -52,6 +52,8 @@ protected:
   void LoadJoints();
   void BuildKinematicTree();
   void SetupPlugins();
+  void SetupROS();
+  void SetupControl();
   void SetConstraintPosition(URJoint* InJoint);
 
   void AddJoint(URJoint* Joint);

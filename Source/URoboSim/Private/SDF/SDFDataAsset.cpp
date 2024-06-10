@@ -3,7 +3,7 @@
 
 #include "SDF/SDFDataAsset.h"
 
-//// Constructor, set default values
+// Constructor, set default values
 //USDFDataAsset::USDFDataAsset()
 //{
 //	bIsStatic = false;
