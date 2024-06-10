@@ -1,0 +1,43 @@
+{
+	"FileVersion": 3,
+	"Version": 1,
+	"VersionName": "1.0",
+	"FriendlyName": "ROS2UE5",
+	"Description": "",
+	"Category": "ROS2UE5",
+	"CreatedBy": "Manuel Eiter",
+	"CreatedByURL": "",
+	"DocsURL": "https://github.com/ManuETR/ROS2UE5",
+	"MarketplaceURL": "",
+	"SupportURL": "",
+	"CanContainContent": true,
+	"IsBetaVersion": false,
+	"Installed": false,
+	"Modules": [
+		{
+		  "Name": "URoboSim",
+		  "Type": "Runtime",
+		  "LoadingPhase": "Default"
+		},
+    {
+		  "Name": "URoboSimEditor",
+		  "Type": "Editor",
+		  "LoadingPhase": "Default"
+		},
+    {
+      "Name": "UROSBridge",
+      "Type": "Runtime",
+      "LoadingPhase": "Default"
+    },
+		],
+  "Plugins": [
+    {
+      "Name": "ProceduralMeshComponent",
+      "Enabled": true
+    },
+    {
+      "Name": "CustomMeshComponent",
+      "Enabled": true
+    },
+  ]
+}
