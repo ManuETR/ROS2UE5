@@ -19,17 +19,22 @@
 		  "Type": "Runtime",
 		  "LoadingPhase": "Default"
 		},
-    {
-		  "Name": "URoboSimEditor",
-		  "Type": "Editor",
-		  "LoadingPhase": "Default"
+		{
+			"Name": "URoboSimEditor",
+			"Type": "Editor",
+			"LoadingPhase": "Default"
 		},
-    {
-      "Name": "UROSBridge",
-      "Type": "Runtime",
-      "LoadingPhase": "Default"
-    },
-		],
+		{
+			"Name": "UROSBridge",
+			"Type": "Runtime",
+			"LoadingPhase": "Default"
+		},
+		{
+			"Name": "UROSControl",
+			"Type": "Runtime",
+			"LoadingPhase": "Default"
+		},
+	],
   "Plugins": [
     {
       "Name": "ProceduralMeshComponent",

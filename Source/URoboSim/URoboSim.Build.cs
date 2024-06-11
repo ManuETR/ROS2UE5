@@ -32,6 +32,7 @@ public class URoboSim : ModuleRules
 				"Engine",
 				"UConversions",
 				"UROSBridge",
+				"UROSControl",
 				"XmlParser",
             }
 			);
