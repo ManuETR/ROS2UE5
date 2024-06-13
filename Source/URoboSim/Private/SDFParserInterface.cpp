@@ -468,6 +468,12 @@ void ISDFParserInterface::ParseJoint(const FXmlNode* InNode, USDFModel*& OutMode
       else if (ChildNode->GetTag().Equals(TEXT("pose")))
         {
           NewJoint->Pose = PoseContentToFTransform(ChildNode->GetContent());
+          const FString RelativeTo = ChildNode->GetAttribute(TEXT("relative_to"));
+          if (!RelativeTo.IsEmpty()) {
+            FTransform Relative = FindRelativeTransform(RelativeTo, OutModel);
+
+            FTransform::Multiply(&NewJoint->Pose, &NewJoint->Pose, &Relative);
+          }
         }
       else if (ChildNode->GetTag().Equals(TEXT("axis")))
         {
@@ -544,7 +550,22 @@ void ISDFParserInterface::ParseJointAxisLimit(const FXmlNode* InNode, USDFJoint*
     }
 }
 
+// Find the FTransform from the relative to Element
+FTransform ISDFParserInterface::FindRelativeTransform(const FString RelativeTo, USDFModel* Model) {
+  int32 IndexJoint = Model->Joints.FindLastByPredicate([RelativeTo](const USDFJoint* Joint) { return Joint->Name == RelativeTo; });
+  int32 IndexLink = Model->Links.FindLastByPredicate([RelativeTo](const USDFLink* Link) { return Link->Name == RelativeTo; });
 
+  if (IndexJoint != INDEX_NONE) {
+    return Model->Joints[IndexJoint]->Pose;
+  }
+  else if (IndexLink != INDEX_NONE) {
+    return Model->Links[IndexLink]->Pose;
+  }
+  else {
+    UE_LOG(LogTemp, Error, TEXT("Relative transformation %s not found."), FString(RelativeTo));
+    return FTransform();
+  }
+}
 
 
 // From <pose>z y z r p y</pose> to FTransform

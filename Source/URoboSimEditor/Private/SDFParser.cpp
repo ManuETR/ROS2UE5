@@ -260,6 +260,12 @@ void FSDFParser::ParseLink(const FXmlNode* InNode, USDFModel*& OutModel)
       if (ChildNode->GetTag().Equals(TEXT("pose")))
         {
           NewLink->Pose = PoseContentToFTransform(ChildNode->GetContent());
+          const FString RelativeTo = ChildNode->GetAttribute(TEXT("relative_to"));
+          if (!RelativeTo.IsEmpty()) {
+            FTransform Relative = FindRelativeTransform(RelativeTo, OutModel);
+            
+            FTransform::Multiply(&NewLink->Pose, &NewLink->Pose, &Relative);
+          }
         }
       else if (ChildNode->GetTag().Equals(TEXT("inertial")))
         {

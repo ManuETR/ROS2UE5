@@ -112,6 +112,9 @@ public:
         // From <pose>z y z r p y</pose> to FTransform
         virtual FTransform PoseContentToFTransform(const FString& InPoseData);//
 
+        // Find the FTransform from the relative to Element
+        virtual FTransform FindRelativeTransform(const FString RelativeTo, USDFModel* Model);//
+
         // From <size>z y z</size> to FVector
         virtual FVector SizeToFVector(const FString& InSizeData);//
 
