@@ -107,18 +107,9 @@ void URJointBuilder::RotateConstraintToRefAxis()
   FVector RefAxisInJointFrame;
   FQuat Rotation;
 
-  if(JointDescription->Axis->bUseParentModelFrame)
-    {
-      Rotation = Joint->Constraint->GetComponentQuat();
-      RefAxisInJointFrame = Rotation.Inverse().RotateVector(Joint->Constraint->RefAxis);
-    }
-  else
-    {
-      UE_LOG(LogTemp, Error, TEXT("model frame not used"));
-      RefAxisInJointFrame = Joint->Constraint->RefAxis;
-//      Rotation = Joint->Constraint->GetComponentQuat();
-//      RefAxisInJointFrame = Rotation.Inverse().RotateVector(Joint->Constraint->RefAxis);
-    }
+  Rotation = Joint->Constraint->GetComponentQuat();
+  RefAxisInJointFrame = Rotation.Inverse().RotateVector(Joint->Constraint->RefAxis);
+
 
   RefAxisInJointFrame /= RefAxisInJointFrame.Size();
 

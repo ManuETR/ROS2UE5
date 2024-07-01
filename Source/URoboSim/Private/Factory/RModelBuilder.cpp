@@ -128,11 +128,10 @@ void URModelBuilder::SetConstraintPosition(URJoint* InJoint)
     }
   else
     {
-      //TODO Implement and check this case
-      UE_LOG(LogTemp, Warning, TEXT("Does't use parent frame"));
-
       //InJoint->Constraint->SetPosition(InJoint);
-      InJoint->Constraint->AttachToComponent(InJoint->Child->GetCollision(), FAttachmentTransformRules::KeepRelativeTransform);
+      InJoint->Constraint->AttachToComponent(InJoint->Child->GetCollision(), FAttachmentTransformRules::KeepWorldTransform);
+      InJoint->Constraint->AttachToComponent(InJoint->Parent->GetCollision(), FAttachmentTransformRules::KeepWorldTransform);
+      InJoint->Constraint->SetWorldLocationAndRotation(InJoint->Child->GetCollision()->GetComponentLocation(), InJoint->Child->GetCollision()->GetComponentQuat());
     }
 }
 
