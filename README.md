@@ -1,6 +1,8 @@
 
 # ROS2UE5
-![_a7298a5d-30ef-43b9-89f9-a816716569b8](https://github.com/user-attachments/assets/e11ea8a4-85dd-4f28-93f9-e1d9efb7d64b)
+<div style="width: 60%; height: 60%">
+  ![_7138a3fb-d648-4d6c-8b51-68db75aea929](https://github.com/user-attachments/assets/778cad81-c173-489e-abc2-828d194804fc)
+</div>
 
 
 ## Overview
