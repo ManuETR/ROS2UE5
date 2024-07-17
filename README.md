@@ -1,8 +1,6 @@
 
 # ROS2UE5
-<div style="width: 60%; height: 60%">
-  ![_7138a3fb-d648-4d6c-8b51-68db75aea929](https://github.com/user-attachments/assets/778cad81-c173-489e-abc2-828d194804fc)
-</div>
+<img width="322" alt="2022-04-09_122409" src="https://github.com/user-attachments/assets/e5cf6747-2210-45cf-9b7a-3d2cdc6cd88f" />
 
 
 ## Overview
