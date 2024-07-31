@@ -54,6 +54,7 @@ protected:
   void SetupPlugins();
   void SetupROS();
   void SetupControl();
+  void SetupLogger();
   void SetConstraintPosition(URJoint* InJoint);
 
   void AddJoint(URJoint* Joint);

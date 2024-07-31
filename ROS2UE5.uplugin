@@ -15,9 +15,9 @@
 	"Installed": false,
 	"Modules": [
 		{
-		  "Name": "URoboSim",
-		  "Type": "Runtime",
-		  "LoadingPhase": "Default"
+			"Name": "URoboSim",
+			"Type": "Runtime",
+			"LoadingPhase": "Default"
 		},
 		{
 			"Name": "URoboSimEditor",
@@ -35,14 +35,18 @@
 			"LoadingPhase": "Default"
 		},
 	],
-  "Plugins": [
-    {
-      "Name": "ProceduralMeshComponent",
-      "Enabled": true
-    },
-    {
-      "Name": "CustomMeshComponent",
-      "Enabled": true
-    },
-  ]
+	"Plugins": [
+		{
+			"Name": "ProceduralMeshComponent",
+			"Enabled": true
+		},
+		{
+			"Name": "CustomMeshComponent",
+			"Enabled": true
+		},
+		{
+			"Name": "SeqLog",
+			"Enabled": true
+		}
+	]
 }

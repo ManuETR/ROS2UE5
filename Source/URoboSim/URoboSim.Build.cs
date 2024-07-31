@@ -14,27 +14,28 @@ public class URoboSim : ModuleRules
         PrivateIncludePaths.Add(Path.Combine(ModuleDirectory, "Private"));
 
         PublicDependencyModuleNames.AddRange(
-			new string[]
-                        {
-                            "Core",
-							"MeshDescription",
-                            "RenderCore",
-                            "Json",
-							"XmlParser",
-                        }
+					new string[]
+					{
+						"Core",
+						"MeshDescription",
+						"RenderCore",
+						"Json",
+						"XmlParser",
+					}
 			);
 
 
 		PrivateDependencyModuleNames.AddRange(
 			new string[]
-			{
-				"CoreUObject",
-				"Engine",
-				"UConversions",
-				"UROSBridge",
-				"UROSControl",
-				"XmlParser",
-            }
+				{
+					"CoreUObject",
+					"Engine",
+					"UConversions",
+					"UROSBridge",
+					"UROSControl",
+					"XmlParser",
+					"SeqLog",
+				}
 			);
 
 

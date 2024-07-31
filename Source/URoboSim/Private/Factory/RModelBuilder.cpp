@@ -1,6 +1,7 @@
 #include "Factory/RModelBuilder.h"
 #include "ROSCommunication/RROSCommunicationComponent.h"
 #include "Controller/RControllerComponent.h"
+#include "Logger/RLoggerComponent.h"
 #include "Controller/ControllerType/BaseController/RBaseController.h"
 
 
@@ -29,6 +30,7 @@ void URModelBuilder::Load(USDFModel* InModelDescription, ARModel* OutModel,FVect
       SetupPlugins();
       SetupROS();
       SetupControl();
+      SetupLogger();
     }
 }
 
@@ -176,4 +178,9 @@ void URModelBuilder::SetupControl()
 {
   URControllerComponent* ControllerComponent = NewObject<URControllerComponent>(Model, TEXT("ControllerComponent"));
   ControllerComponent->RegisterComponent();
+}
+void URModelBuilder::SetupLogger()
+{
+  URLoggerComponent* LoggerComponent = NewObject<URLoggerComponent>(Model, TEXT("LoggerComponent"));
+  LoggerComponent->RegisterComponent();
 }
