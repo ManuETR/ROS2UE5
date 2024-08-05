@@ -2,6 +2,8 @@
 #pragma once
 #include "Physics/RModel.h"
 #include "Misc/DateTime.h"
+#include "Json.h"
+#include "JsonUtilities.h"
 // clang-format off
 #include "RLogger.generated.h"
 // clang-format on
@@ -19,7 +21,7 @@ class UROBOSIM_API URLogger : public UObject
   GENERATED_BODY()
 
 public:
-  virtual FString Tick(const float& InDeltaTime);
+  virtual TSharedPtr<FJsonObject> GetData(const float& InDeltaTime);
   virtual void Init();
   virtual void SetLoggerParameters(URLoggerParameter *&LoggerParameters) {}
 

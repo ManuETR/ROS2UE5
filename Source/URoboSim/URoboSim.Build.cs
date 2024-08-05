@@ -21,6 +21,7 @@ public class URoboSim : ModuleRules
 						"RenderCore",
 						"Json",
 						"XmlParser",
+						"SeqLog",
 					}
 			);
 
@@ -34,7 +35,6 @@ public class URoboSim : ModuleRules
 					"UROSBridge",
 					"UROSControl",
 					"XmlParser",
-					"SeqLog",
 				}
 			);
 

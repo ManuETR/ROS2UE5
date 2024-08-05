@@ -12,9 +12,9 @@ void URLoggerComponent::TickComponent(float DeltaTime, ELevelTick TickType, FAct
 {
   for (URLogger *&Logger : Loggers)
   {
-    const FString Message = Logger->Tick(DeltaTime);
-    if (!Message.IsEmpty()) {
-      Log(Message);
+    TSharedPtr<FJsonObject> JsonObject = Logger->GetData(DeltaTime);
+    if (JsonObject.IsValid()) {
+      Log(JsonObject);
     }
   }
 }
@@ -48,8 +48,8 @@ URLogger *URLoggerComponent::GetLogger(const FString &LoggerName) const
   }
 }
 
-void URLoggerComponent::Log(const FString &Message) {
+void URLoggerComponent::Log(TSharedPtr<FJsonObject> JsonObject) {
   if (Sink == UDataSink::Seq) {
-    UE_LOG(SeqLog, Log, TEXT("%s"), *Message)
+    USeqLog::Get()->Send(JsonObject);
   }
 }

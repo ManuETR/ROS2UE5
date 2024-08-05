@@ -37,7 +37,7 @@ void URJointLogger::Init()
   }
 }
 
-FString URJointLogger::Tick(const float &InDeltaTime)
+TSharedPtr<FJsonObject> URJointLogger::GetData(const float &InDeltaTime)
 {
   FDateTime CurrentTime = FDateTime::Now();
 
@@ -46,11 +46,13 @@ FString URJointLogger::Tick(const float &InDeltaTime)
 
   // Check if at least one second has passed
   if (ElapsedTime.GetTotalSeconds() < LogDelay / 1000) {
-    return TEXT("");
+    return nullptr;
   }
   else {
     LastLogTime = CurrentTime;
   }
+
+  TSharedPtr<FJsonObject> JsonObject = MakeShareable(new FJsonObject());
 
   if (GetOwner())
   {
@@ -58,7 +60,11 @@ FString URJointLogger::Tick(const float &InDeltaTime)
     {
       if (URJoint* Joint = GetOwner()->GetJoint(JointName))
       {
-        
+        TSharedPtr<FJsonObject> JointObject = MakeShareable(new FJsonObject());
+        JointObject->SetNumberField(TEXT("position"), Joint->GetJointPosition());
+        JointObject->SetNumberField(TEXT("velocity"), Joint->GetJointVelocity());
+
+        JsonObject->SetObjectField(Joint->GetName(), JointObject);
       }
       else
       {
@@ -71,5 +77,5 @@ FString URJointLogger::Tick(const float &InDeltaTime)
     UE_LOG(LogRJointLogger, Error, TEXT("Owner of %s not found"), *GetName())
   }
 
-  return TEXT("TEST");
+  return JsonObject;
 }

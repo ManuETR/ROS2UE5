@@ -33,7 +33,7 @@ void URLogger::SetOwner()
 }
 
 
-FString URLogger::Tick(const float& InDeltaTime)
+TSharedPtr<FJsonObject> URLogger::GetData(const float& InDeltaTime)
 {
-  return TEXT("Logger::Tick implementation needed!");
+  return nullptr;
 }

@@ -21,7 +21,7 @@ class UROBOSIM_API URLoggerComponent : public URPluginComponent
 
 protected:
 	void Init() override;
-	void Log(const FString&);
+	void Log(TSharedPtr<FJsonObject>);
 
 public:
 	URLoggerComponent();

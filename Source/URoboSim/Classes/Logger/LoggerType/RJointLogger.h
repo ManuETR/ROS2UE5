@@ -34,7 +34,7 @@ public:
 
 public:
   virtual void Init() override;
-  virtual FString Tick(const float &InDeltaTime) override;
+  virtual TSharedPtr<FJsonObject> GetData(const float& InDeltaTime) override;
   virtual void SetLoggerParameters(URLoggerParameter *&LoggerParameters) override;
 
 protected:
