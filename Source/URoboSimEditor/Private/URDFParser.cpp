@@ -126,6 +126,14 @@ void FURDFParser::ParseSDF() {
     }
   }
 
+  for (USDFJoint* Joint : NewModel->Joints) {
+    FTransform Relative = FindRelativeTransform(Joint->Parent, NewModel);
+    USDFLink* Link = FindLink(Joint->Child, NewModel);
+    FTransform Transform = Joint->Pose;
+    Joint->Axis->bUseParentModelFrame = false;
+    FTransform::Multiply(&Link->Pose, &Transform, &Relative);
+  }
+
   DataAsset->Models.Add(NewModel);
 }
 
@@ -360,14 +368,12 @@ void FURDFParser::ParseJoint(const FXmlNode* InNode, USDFModel*& OutModel) {
   }
 
   NewJoint->Parent = InNode->FindChildNode(TEXT("parent"))->GetAttribute(TEXT("link"));
-  NewJoint->Child = InNode->FindChildNode(TEXT("Child"))->GetAttribute(TEXT("link"));
+  NewJoint->Child = InNode->FindChildNode(TEXT("child"))->GetAttribute(TEXT("link"));
   // Iterate <joint> child nodes
   for (const auto& ChildNode : InNode->GetChildrenNodes()) {
     if (ChildNode->GetTag().Equals(TEXT("parent")) || ChildNode->GetTag().Equals(TEXT("child"))) {
     } else if (ChildNode->GetTag().Equals(TEXT("origin"))) {
       NewJoint->Pose = PoseContentToFTransform(ChildNode->GetAttribute(TEXT("xyz")) + " " + ChildNode->GetAttribute(TEXT("rpy")));
-      FTransform Relative = FindRelativeTransform(NewJoint->Child, OutModel);
-      FTransform::Multiply(&NewJoint->Pose, &NewJoint->Pose, &Relative);
     }
     else if (ChildNode->GetTag().Equals(TEXT("limit"))) {
       ParseJointAxisLimit(ChildNode, NewJoint);

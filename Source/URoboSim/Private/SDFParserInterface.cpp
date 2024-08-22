@@ -567,6 +567,31 @@ FTransform ISDFParserInterface::FindRelativeTransform(const FString RelativeTo, 
   }
 }
 
+USDFLink* ISDFParserInterface::FindLink(const FString Needle, USDFModel* Model) {
+  int32 Index = Model->Links.FindLastByPredicate([Needle](const USDFLink* Link) { return Link->Name == Needle; });
+
+  if (Index != INDEX_NONE) {
+    return Model->Links[Index];
+  }
+  else {
+    UE_LOG(LogTemp, Error, TEXT("Link with the name %s cannot be found."), *FString(Needle));
+    return nullptr;
+  }
+}
+
+USDFJoint* ISDFParserInterface::FindJoint(const FString Needle, USDFModel* Model) {
+  int32 Index = Model->Joints.FindLastByPredicate([Needle](const USDFJoint* Joint) { return Joint->Name == Needle; });
+
+  if (Index != INDEX_NONE) {
+    return Model->Joints[Index];
+  }
+  else {
+    UE_LOG(LogTemp, Error, TEXT("Joint with the name %s cannot be found."), *FString(Needle));
+    return nullptr;
+  }
+}
+
+
 
 // From <pose>z y z r p y</pose> to FTransform
 FTransform ISDFParserInterface::PoseContentToFTransform(const FString& InPoseData)
@@ -593,7 +618,7 @@ FTransform ISDFParserInterface::PoseContentToFTransform(const FString& InPoseDat
   return FTransform();
 }
 
-// From <>z y z</> to FVector
+// From <>x y z</> to FVector
 FVector ISDFParserInterface::XyzToFVector(const FString& InXyzData)
 {
   // <size>x=[0] y=[1] z=[2]</size>

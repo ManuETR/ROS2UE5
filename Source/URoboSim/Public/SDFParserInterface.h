@@ -115,6 +115,9 @@ public:
         // Find the FTransform from the relative to Element
         virtual FTransform FindRelativeTransform(const FString RelativeTo, USDFModel* Model);//
 
+        virtual USDFJoint* FindJoint(const FString Needle, USDFModel* Model);
+        virtual USDFLink* FindLink(const FString Needle, USDFModel* Model);
+
         // From <size>z y z</size> to FVector
         virtual FVector SizeToFVector(const FString& InSizeData);//
 
