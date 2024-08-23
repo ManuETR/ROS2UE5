@@ -33,14 +33,15 @@ URJointBuilder* URJointFactory::CreateBuilder(USDFJoint* InJointDescription)
         }
     }
   else if(InJointDescription->Type.Equals("prismatic"))
-    {
+  {
       return NewObject<URPrismaticJointBuilder>(this);
-    }
-  else
-    {
+  } else if (InJointDescription->Type.Equals("fixed")) {
+    // TODO implement a fixid joint
+     return NewObject<URPrismaticJointBuilder>(this);
+  } else {
       UE_LOG(LogTemp, Error, TEXT("%s Constraint Type not supported."), *InJointDescription->Type);
       return nullptr;
-    }
+  }
 }
 
 void URJointBuilder::Init(UObject* InOuter, USDFJoint* InJointDescription)
