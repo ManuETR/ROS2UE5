@@ -197,7 +197,7 @@ void FURDFParser::ParseVisual(const FXmlNode* InNode, USDFLink*& OutLink) {
   } else {
     UE_LOG(LogTemp, Warning, TEXT("[%s][%d] <link> has no \"name\" attribute, added a default value.."), *FString(__FUNCTION__), __LINE__);
     NewVisual = NewObject<USDFVisual>(OutLink/*, FName(TEXT("__default__"))*/);
-    NewVisual->Name = TEXT("__default__");
+    NewVisual->Name = OutLink->Name + TEXT("_visual");
   }
 
   // Iterate <visual> child nodes
@@ -231,7 +231,7 @@ void FURDFParser::ParseCollision(const FXmlNode* InNode, USDFLink*& OutLink) {
   } else {
     UE_LOG(LogTemp, Warning, TEXT("[%s][%d] <collision> has no \"name\" attribute, added a default value.."), *FString(__FUNCTION__), __LINE__);
     NewCollision = NewObject<USDFCollision>(OutLink/*, FName(TEXT("__default__"))*/);
-    NewCollision->Name = TEXT("__default__");
+    NewCollision->Name = OutLink->Name + TEXT("_constraint");
   }
 
   // Iterate <collision> child nodes

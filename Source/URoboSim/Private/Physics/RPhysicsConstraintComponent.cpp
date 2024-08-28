@@ -436,8 +436,12 @@ void URPrismaticConstraintComponent::SetJointEffort(float InEffort)
   FRotator ParentRotation = Parent->GetComponentRotation();
   FVector RotAxis = ParentRotation.Quaternion().RotateVector(RefAxis);
 
-  Child->AddForce(InEffort*RotAxis);
-  Parent->AddForce(-InEffort*RotAxis);
+  if (Child->IsSimulatingPhysics()) {
+    Child->AddForce(InEffort*RotAxis);
+  }
+  if (Parent->IsSimulatingPhysics()) {
+    Parent->AddForce(-InEffort*RotAxis);
+  }
 }
 
 void URContinuousConstraintComponent::SetJointPosition(float Angle, FHitResult * OutSweepHitResult)
@@ -482,7 +486,9 @@ void URContinuousConstraintComponent::SetJointEffort(float Effort)
   FRotator ParentRotation = Parent->GetComponentRotation();
   FVector RotAxis = ParentRotation.Quaternion().RotateVector(RefAxis);
   float JointPosition = GetJointPosition();
-  Child->AddTorqueInDegrees(Effort*RotAxis);
+  if (Child->IsSimulatingPhysics()) {
+    Child->AddTorqueInDegrees(Effort*RotAxis);
+  }
 }
 
 void URContinuousConstraintComponent::SetJointEffortFromROS(float InEffort)

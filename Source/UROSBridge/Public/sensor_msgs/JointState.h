@@ -110,7 +110,11 @@ namespace sensor_msgs
 			Efforts.Empty();
 			ValuesPtrArr = JsonObject->GetArrayField(TEXT("effort"));
 			for (auto &ptr : ValuesPtrArr)
-				Efforts.Add(ptr->AsNumber());
+				if (ptr->IsNull()) {
+					Efforts.Add(0);
+				} else {
+					Efforts.Add(ptr->AsNumber());
+				}
 		}
 
 		static JointState GetFromJson(TSharedPtr<FJsonObject> JsonObject)
