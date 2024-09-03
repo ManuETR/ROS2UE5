@@ -14,7 +14,7 @@ URModelFactory::URModelFactory(const FObjectInitializer& ObjectInitializer) : Su
 bool URModelFactory::CanCreateActorFrom(const FAssetData & AssetData, FText & OutErrorMsg)
 {
     // Only designed for SDFData Asset.
-    return AssetData.GetClass()->IsChildOf( USDFDataAsset::StaticClass());
+    return AssetData.GetClass() != nullptr && AssetData.GetClass()->IsChildOf( USDFDataAsset::StaticClass());
     // return AssetData.AssetClass.IsEqual(FName("SDFDataAsset"));
 }
 

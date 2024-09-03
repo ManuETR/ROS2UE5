@@ -15,7 +15,7 @@ URControllerFactory::URControllerFactory(const FObjectInitializer &ObjectInitial
 bool URControllerFactory::CanCreateActorFrom(const FAssetData &AssetData, FText &OutErrorMsg)
 {
   // Only designed for ControllerAsset Asset.
-  return AssetData.GetClass()->IsChildOf(URControllerDataAsset::StaticClass());
+  return AssetData.GetClass() != nullptr && AssetData.GetClass()->IsChildOf(URControllerDataAsset::StaticClass());
 }
 
 AActor *URControllerFactory::GetDefaultActor(const FAssetData &AssetData)

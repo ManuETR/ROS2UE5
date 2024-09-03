@@ -15,7 +15,7 @@ URROSCommunicationFactory::URROSCommunicationFactory(const FObjectInitializer &O
 bool URROSCommunicationFactory::CanCreateActorFrom(const FAssetData &AssetData, FText &OutErrorMsg)
 {
   // Only designed for ControllerAsset Asset.
-  return AssetData.GetClass()->IsChildOf(URROSCommunicationDataAsset::StaticClass());
+  return AssetData.GetClass() != nullptr && AssetData.GetClass()->IsChildOf(URROSCommunicationDataAsset::StaticClass());
 }
 
 AActor *URROSCommunicationFactory::GetDefaultActor(const FAssetData &AssetData)

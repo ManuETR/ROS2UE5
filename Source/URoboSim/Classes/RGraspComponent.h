@@ -19,51 +19,34 @@ class UROBOSIM_API URGraspComponent : public USphereComponent
 public:
 	URGraspComponent();
 
-	virtual void Init(UStaticMeshComponent* InGripper1, UStaticMeshComponent* InGripper2);
-	virtual void Init(UStaticMeshComponent* InGripper);
-	// virtual void Init();
-
 	virtual void BeginPlay() override;
-
-	// Try to fixate object to hand
-	virtual bool TryToFixate();
-
-	// Detach fixation
-	virtual void TryToDetach();
-
-	UPROPERTY()
-	FString GripperName;
-
-	// Fixated object
 
 	UPROPERTY()
 	AStaticMeshActor* FixatedObject;
 
-	UPROPERTY()
-	AActor* ObjectToPublish;
 
 	UPROPERTY()
 	bool bObjectGrasped;
 
 
 protected:
-        UPROPERTY()
-          URTFPublisher* TFPublisher;
-
 	UPROPERTY(EditAnywhere)
 	float GraspRadius = 10.f;
 
-	UPROPERTY()
-	UStaticMeshComponent* Gripper;
+	UPrimitiveComponent* Finger1;
+	UPrimitiveComponent* Finger2;
 
-	UPROPERTY()
-	UStaticMeshComponent* Gripper2;
+	bool bFingerReady1;
+	bool bFingerReady2;
 
-        UPROPERTY(EditAnywhere)
-          UPhysicsConstraintComponent* Constraint;
+	UPROPERTY(EditAnywhere)
+	FString FingerName1;
 
-        UPROPERTY(EditAnywhere)
-          UPhysicsConstraintComponent* Constraint2;
+	UPROPERTY(EditAnywhere)
+	FString FingerName2;
+
+  UPhysicsConstraintComponent* Constraint1;
+  UPhysicsConstraintComponent* Constraint2;
 	// Function called when an item enters the fixation overlap area
 	UFUNCTION()
 	virtual void OnFixationGraspAreaBeginOverlap(class UPrimitiveComponent* HitComp, class AActor* OtherActor,
@@ -74,12 +57,13 @@ protected:
 	virtual void OnFixationGraspAreaEndOverlap(class UPrimitiveComponent* HitComp, class AActor* OtherActor,
 		class UPrimitiveComponent* OtherComp, int32 OtherBodyIndex);
 
-	// Array of items currently in reach (overlapping the sphere component)
-	TArray<AStaticMeshActor*> ObjectsInReach;
+
+	UPrimitiveComponent* GetComponent(FString ComponentName);
 
 
 	// Fixate object to hand
-	virtual void FixateObject(AStaticMeshActor* InSMA);
+	void GraspObject(AStaticMeshActor* InSMA);
+	void ReleaseObject();
 
         UPROPERTY()
           bool bGraspObjectGravity;

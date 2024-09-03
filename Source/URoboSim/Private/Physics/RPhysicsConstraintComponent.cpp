@@ -404,6 +404,9 @@ void URPrismaticConstraintComponent::SetMotorJointStateInUUnits(float TargetPosi
 
 void URPrismaticConstraintComponent::SetJointPosition(float Angle, FHitResult * OutSweepHitResult)
 {
+  if (Child->IsSimulatingPhysics()) {
+    return;
+  }
   Child->AttachToComponent(this, FAttachmentTransformRules::KeepWorldTransform);
 
   FVector DeltaJointLocationInJointFrame = RefAxis * FConversions::MToCm((float)Angle);
@@ -446,13 +449,20 @@ void URPrismaticConstraintComponent::SetJointEffort(float InEffort)
 
 void URContinuousConstraintComponent::SetJointPosition(float Angle, FHitResult * OutSweepHitResult)
 {
+  if (Child->IsSimulatingPhysics()) {
+    return;
+  }
   Child->AttachToComponent(this, FAttachmentTransformRules::KeepWorldTransform);
 
   FQuat DeltaJointRotationInJointFrame = FQuat(RefAxis, -Angle);
   FQuat ChildRotationInJointFrame = DeltaJointRotationInJointFrame * InitChildMeshPoseInJointFrame.GetRotation();
+  
+  // sweep is currently not supported for rotation
+  // https://dev.epicgames.com/documentation/en-us/unreal-engine/API/Runtime/Engine/Components/USceneComponent/SetRelativeRotation/2
   Child->SetRelativeRotation(ChildRotationInJointFrame);
 
   Child->AttachToComponent(Parent, FAttachmentTransformRules::KeepWorldTransform);
+
 
   // float OldAngle = Encoder->GetValue();
   // FVector RotAxis = GetComponentRotation().Quaternion().RotateVector(RefAxis);
@@ -464,6 +474,7 @@ void URContinuousConstraintComponent::SetJointPosition(float Angle, FHitResult *
 void URContinuousConstraintComponent::SetJointVelocity(float Velocity)
 {
   TargetVelocity = Velocity;
+  //SetLinearVelocityTarget(RefAxis * Velocity);
 }
 
 void URPrismaticConstraintComponent::SetJointVelocityInUUnits(float Velocity)

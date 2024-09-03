@@ -4,8 +4,8 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "EditorReimportHandler.h"
-#include "Factories/DataAssetFactory.h"
+#include "UObject/ObjectMacros.h"
+#include "Factories/Factory.h"
 #include "SDFDataAssetFactory.generated.h"
 
 // Forward declaration
@@ -14,7 +14,7 @@ class USDFDataAsset;
 /**
  *
  */
-UCLASS()
+UCLASS(hidecategories = Object)
 class UROBOSIMEDITOR_API USDFDataAssetFactory : public UFactory/*, public FReimportHandler*/
 {
 	GENERATED_BODY()

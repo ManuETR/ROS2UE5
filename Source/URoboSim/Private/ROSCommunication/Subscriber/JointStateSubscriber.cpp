@@ -57,7 +57,6 @@ void FRJointStateSubscriberCallback::Callback(TSharedPtr<FROSBridgeMsg> Msg)
 
   }
 
-  UE_LOG(LogTemp, Log, TEXT("[] Message received by ! Content: "));
   // Do something with the message
-  UE_LOG(LogTemp, Log, TEXT("[%s] Message received! Content: %s"), *FString(__FUNCTION__), *JointStateMessage->ToString());
+  // UE_LOG(LogTemp, Log, TEXT("[%s] Message received! Content: %s"), *FString(__FUNCTION__), *JointStateMessage->ToString());
 }

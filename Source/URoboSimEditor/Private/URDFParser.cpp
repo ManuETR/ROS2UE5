@@ -231,7 +231,7 @@ void FURDFParser::ParseCollision(const FXmlNode* InNode, USDFLink*& OutLink) {
   } else {
     UE_LOG(LogTemp, Warning, TEXT("[%s][%d] <collision> has no \"name\" attribute, added a default value.."), *FString(__FUNCTION__), __LINE__);
     NewCollision = NewObject<USDFCollision>(OutLink/*, FName(TEXT("__default__"))*/);
-    NewCollision->Name = OutLink->Name + TEXT("_constraint");
+    NewCollision->Name = OutLink->Name + TEXT("_collision");
   }
 
   // Iterate <collision> child nodes
