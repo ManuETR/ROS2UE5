@@ -64,19 +64,14 @@ void URGraspComponent::BeginPlay()
   Finger2->OnComponentEndOverlap.AddDynamic(this, &URGraspComponent::OnFixationGraspAreaEndOverlap);
 
   FString ConstraintName = TEXT("Constraint_") + GetName();
-  Constraint1 = NewObject<UPhysicsConstraintComponent>(this, FName(*ConstraintName));
+  Constraint1 = NewObject<UPhysicsConstraintComponent>(Finger1, FName(*ConstraintName));
+  Constraint1->AttachToComponent(Finger1, FAttachmentTransformRules::KeepRelativeTransform);
+  Constraint1->RegisterComponent();
 
-  Constraint1->ConstraintInstance.SetAngularTwistLimit(EAngularConstraintMotion::ACM_Locked, 0);
-  Constraint1->ConstraintInstance.SetAngularSwing2Limit(EAngularConstraintMotion::ACM_Locked, 0);
-  // Constraint->ConstraintInstance.SetAngularSwing1Limit(EAngularConstraintMotion::ACM_Limited, 2);
-  Constraint1->ConstraintInstance.SetAngularSwing1Limit(EAngularConstraintMotion::ACM_Locked, 0);
-
-  FString ConstraintName2 = TEXT("Constraint2_") + GetName();
-  Constraint2 = NewObject<UPhysicsConstraintComponent>(this, FName(*ConstraintName2));
-  Constraint2->ConstraintInstance.SetAngularTwistLimit(EAngularConstraintMotion::ACM_Locked, 0);
-  Constraint2->ConstraintInstance.SetAngularSwing2Limit(EAngularConstraintMotion::ACM_Locked, 0);
-  // Constraint->ConstraintInstance.SetAngularSwing1Limit(EAngularConstraintMotion::ACM_Limited, 2);
-  Constraint2->ConstraintInstance.SetAngularSwing1Limit(EAngularConstraintMotion::ACM_Locked, 0);
+  // FString ConstraintName2 = TEXT("Constraint2_") + GetName();
+  // Constraint2 = NewObject<UPhysicsConstraintComponent>(Finger2, FName(*ConstraintName2));
+  // Constraint2->AttachToComponent(Finger2, FAttachmentTransformRules::KeepRelativeTransform);
+  // Constraint2->RegisterComponent();
 }
 
 void URGraspComponent::OnFixationGraspAreaBeginOverlap(class UPrimitiveComponent* HitComp, class AActor* OtherActor,
@@ -117,7 +112,7 @@ void URGraspComponent::OnFixationGraspAreaEndOverlap(class UPrimitiveComponent* 
       UE_LOG(LogTemp, Warning, TEXT("Finger2 out Collision"));
     }
 
-    if (!(bFingerReady1 && bFingerReady2)) {
+    if (!bFingerReady1 || !bFingerReady2) {
       ReleaseObject();
     }
   }
@@ -163,38 +158,32 @@ void URGraspComponent::GraspObject(AStaticMeshActor* InSMA)
   {
     UE_LOG(LogTemp, Error, TEXT("Finger1 %s"), *Finger1->GetName());
     Constraint1->SetConstrainedComponents(Finger1, NAME_None, SMC, NAME_None);
+    SMC->SetSimulatePhysics(false);
+    SMC->AttachToComponent(Constraint1, FAttachmentTransformRules::KeepWorldTransform);
   }
 
   if(Finger2 != nullptr)
     {
-      Constraint2->SetConstrainedComponents(Finger2, NAME_None, SMC, NAME_None);
+      // Constraint2->SetConstrainedComponents(Finger2, NAME_None, SMC, NAME_None);
     }
-  bGraspObjectGravity = SMC->IsGravityEnabled();
   bObjectGrasped = true;
-  SMC->SetEnableGravity(false);
 
 
 }
 
 // Detach fixation
 void URGraspComponent::ReleaseObject() {
-  if(bFingerReady1)
-    {
-      Constraint1->BreakConstraint();
-      bFingerReady1 = false;
-    }
-
-  if(bFingerReady2)
-    {
-      Constraint2->BreakConstraint();
-      bFingerReady2 = false;
-    }
-
 
   if(FixatedObject)
   {
+    if (Constraint1) {
+      Constraint1->BreakConstraint();
+    }
+    if (Constraint2) {
+      // Constraint2->BreakConstraint();
+    }
+    UStaticMeshComponent* SMC = FixatedObject->GetStaticMeshComponent();
 
-    FixatedObject->GetStaticMeshComponent()->SetEnableGravity(bGraspObjectGravity);
     FixatedObject = nullptr;
   }
   bObjectGrasped = false;

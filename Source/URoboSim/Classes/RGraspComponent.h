@@ -45,8 +45,10 @@ protected:
 	UPROPERTY(EditAnywhere)
 	FString FingerName2;
 
+	UPROPERTY(EditAnywhere)
   UPhysicsConstraintComponent* Constraint1;
-  UPhysicsConstraintComponent* Constraint2;
+	UPROPERTY(EditAnywhere)
+	UPhysicsConstraintComponent* Constraint2;
 	// Function called when an item enters the fixation overlap area
 	UFUNCTION()
 	virtual void OnFixationGraspAreaBeginOverlap(class UPrimitiveComponent* HitComp, class AActor* OtherActor,
