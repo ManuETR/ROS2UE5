@@ -5,7 +5,6 @@
 
 URGraspComponent::URGraspComponent()
 {
-  InitSphereRadius(GraspRadius);
   SetGenerateOverlapEvents(true);
   SetEnableGravity(false);
 }
@@ -41,6 +40,7 @@ void URGraspComponent::BeginPlay()
 
   Finger1 = GetComponent(FingerName1);
   Finger2 = GetComponent(FingerName2);
+  Gripper = GetComponent(GripperName);
 
   if (!Finger1) {
     UE_LOG(LogTemp, Error, TEXT("Finger1 not found"));
@@ -49,6 +49,11 @@ void URGraspComponent::BeginPlay()
 
   if (!Finger2) {
     UE_LOG(LogTemp, Error, TEXT("Finger2 not found"));
+    return;
+  }
+
+  if (!Gripper) {
+    UE_LOG(LogTemp, Error, TEXT("Gripper not found"));
     return;
   }
   
@@ -68,10 +73,10 @@ void URGraspComponent::BeginPlay()
   Constraint1->AttachToComponent(Finger1, FAttachmentTransformRules::KeepRelativeTransform);
   Constraint1->RegisterComponent();
 
-  // FString ConstraintName2 = TEXT("Constraint2_") + GetName();
-  // Constraint2 = NewObject<UPhysicsConstraintComponent>(Finger2, FName(*ConstraintName2));
-  // Constraint2->AttachToComponent(Finger2, FAttachmentTransformRules::KeepRelativeTransform);
-  // Constraint2->RegisterComponent();
+  FString ConstraintName2 = TEXT("Constraint2_") + GetName();
+  Constraint2 = NewObject<UPhysicsConstraintComponent>(Finger2, FName(*ConstraintName2));
+  Constraint2->AttachToComponent(Finger2, FAttachmentTransformRules::KeepRelativeTransform);
+  Constraint2->RegisterComponent();
 }
 
 void URGraspComponent::OnFixationGraspAreaBeginOverlap(class UPrimitiveComponent* HitComp, class AActor* OtherActor,
@@ -154,19 +159,22 @@ void URGraspComponent::GraspObject(AStaticMeshActor* InSMA)
     }
 
   FixatedObject = ConstrainedActor;
-  if(Finger1 != nullptr)
+  if(Finger1 != nullptr && Finger2 != nullptr)
   {
     UE_LOG(LogTemp, Error, TEXT("Finger1 %s"), *Finger1->GetName());
-    Constraint1->SetConstrainedComponents(Finger1, NAME_None, SMC, NAME_None);
-    SMC->SetSimulatePhysics(false);
-    SMC->AttachToComponent(Constraint1, FAttachmentTransformRules::KeepWorldTransform);
+
+    bGraspObjectSimulatePhysics = SMC->IsSimulatingPhysics();
+
+    if (Finger1->IsSimulatingPhysics() && Finger2->IsSimulatingPhysics()) {
+      Constraint1->SetConstrainedComponents(Finger1, NAME_None, SMC, NAME_None);
+      Constraint2->SetConstrainedComponents(Finger2, NAME_None, SMC, NAME_None);
+    } else {
+      SMC->SetSimulatePhysics(false);
+      SMC->AttachToComponent(Gripper, FAttachmentTransformRules::KeepWorldTransform);
+    }
+    bObjectGrasped = true;
   }
 
-  if(Finger2 != nullptr)
-    {
-      // Constraint2->SetConstrainedComponents(Finger2, NAME_None, SMC, NAME_None);
-    }
-  bObjectGrasped = true;
 
 
 }
@@ -180,10 +188,11 @@ void URGraspComponent::ReleaseObject() {
       Constraint1->BreakConstraint();
     }
     if (Constraint2) {
-      // Constraint2->BreakConstraint();
+      Constraint2->BreakConstraint();
     }
     UStaticMeshComponent* SMC = FixatedObject->GetStaticMeshComponent();
 
+    SMC->SetSimulatePhysics(bGraspObjectSimulatePhysics);
     FixatedObject = nullptr;
   }
   bObjectGrasped = false;

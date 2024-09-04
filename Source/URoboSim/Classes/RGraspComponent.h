@@ -12,7 +12,7 @@
 class URTFPublisher;
 
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
-class UROBOSIM_API URGraspComponent : public USphereComponent
+class UROBOSIM_API URGraspComponent : public UPrimitiveComponent
 {
 	GENERATED_BODY()
 
@@ -30,11 +30,9 @@ public:
 
 
 protected:
-	UPROPERTY(EditAnywhere)
-	float GraspRadius = 10.f;
-
 	UPrimitiveComponent* Finger1;
 	UPrimitiveComponent* Finger2;
+	UPrimitiveComponent* Gripper;
 
 	bool bFingerReady1;
 	bool bFingerReady2;
@@ -46,8 +44,9 @@ protected:
 	FString FingerName2;
 
 	UPROPERTY(EditAnywhere)
+	FString GripperName;
+
   UPhysicsConstraintComponent* Constraint1;
-	UPROPERTY(EditAnywhere)
 	UPhysicsConstraintComponent* Constraint2;
 	// Function called when an item enters the fixation overlap area
 	UFUNCTION()
@@ -67,6 +66,6 @@ protected:
 	void GraspObject(AStaticMeshActor* InSMA);
 	void ReleaseObject();
 
-        UPROPERTY()
-          bool bGraspObjectGravity;
+  bool bGraspObjectGravity;
+	bool bGraspObjectSimulatePhysics;
 };
