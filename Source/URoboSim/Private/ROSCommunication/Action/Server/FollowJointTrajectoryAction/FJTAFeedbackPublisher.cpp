@@ -1,9 +1,9 @@
 #include "ROSCommunication/Action/Server/FollowJointTrajectoryAction/FJTAFeedbackPublisher.h"
-#include "control_msgs/FollowJointTrajectoryActionFeedback.h"
+#include "control_msgs/action/FollowJointTrajectory_FeedbackMessage.h"
 
 URFJTAFeedbackPublisher::URFJTAFeedbackPublisher()
 {
-  MessageType = TEXT("control_msgs/FollowJointTrajectoryActionFeedback");
+  MessageType = TEXT("control_msgs/action/FollowJointTrajectory_FeedbackMessage");
   JointParamTopic = TEXT("/whole_body_controller/joints");
 }
 
@@ -27,8 +27,8 @@ void URFJTAFeedbackPublisher::Publish()
 {
   if (JointTrajectoryController && JointTrajectoryController->GetState() == UJointControllerState::FollowJointTrajectory)
   {
-    TSharedPtr<control_msgs::FollowJointTrajectoryActionFeedback> Feedback =
-        MakeShareable(new control_msgs::FollowJointTrajectoryActionFeedback());
+    TSharedPtr<control_msgs::action::FollowJointTrajectory_FeedbackMessage> Feedback =
+        MakeShareable(new control_msgs::action::FollowJointTrajectory_FeedbackMessage());
 
     FGoalStatusInfo StatusInfo = JointTrajectoryController->GetGoalStatusList().Last();
     actionlib_msgs::GoalStatus GS(actionlib_msgs::GoalID(FROSTime(StatusInfo.Secs, StatusInfo.NSecs), StatusInfo.Id), StatusInfo.Status, TEXT(""));

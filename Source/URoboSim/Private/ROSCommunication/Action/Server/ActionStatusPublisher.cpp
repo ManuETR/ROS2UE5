@@ -1,11 +1,11 @@
 #include "ROSCommunication/Action/Server/ActionStatusPublisher.h"
-#include "actionlib_msgs/GoalStatusArray.h"
+#include "action_msgs/msg/GoalStatusArray.h"
 
 DEFINE_LOG_CATEGORY_STATIC(LogRActionStatusPublisher, Log, All)
 
 URActionStatusPublisher::URActionStatusPublisher()
 {
-  MessageType = TEXT("actionlib_msgs/GoalStatusArray");
+  MessageType = TEXT("action_msgs/msg/GoalStatusArray");
   FrameId = TEXT("odom");
 }
 

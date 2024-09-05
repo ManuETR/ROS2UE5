@@ -1,43 +1,43 @@
 #include "ROSCommunication/Action/Server/FollowJointTrajectoryAction/FJTAGoalSubscriber.h"
-#include "control_msgs/FollowJointTrajectoryActionGoal.h"
+#include "control_msgs/action/FollowJointTrajectory_SendGoal.h"
 
 DEFINE_LOG_CATEGORY_STATIC(LogRFJTAGoalSubscriber, Log, All)
 
-URFJTAGoalSubscriber::URFJTAGoalSubscriber()
+URFJTASendGoalService::URFJTASendGoalService()
 {
-  MessageType = TEXT("control_msgs/FollowJointTrajectoryActionGoal");
+  MessageType = TEXT("control_msgs/action/FollowJointTrajectory_SendGoal");
 }
 
-void URFJTAGoalSubscriber::CreateSubscriber()
+void URFJTASendGoalService::CreateServiceServer()
 {
   if (Controller)
   {
-    Subscriber = MakeShareable<FRFJTAGoalSubscriberCallback>(
-        new FRFJTAGoalSubscriberCallback(Topic, MessageType, Controller));
+    ServiceServer = MakeShareable<URFJTASendGoalServiceCallback>(
+        new URFJTASendGoalServiceCallback(Topic, MessageType, Controller));
   }
 }
 
-FRFJTAGoalSubscriberCallback::FRFJTAGoalSubscriberCallback(
+URFJTASendGoalServiceCallback::URFJTASendGoalServiceCallback(
     const FString &InTopic, const FString &InType, UObject *InController) : FROSBridgeSubscriber(InTopic, InType)
 {
   JointTrajectoryController = Cast<URJointTrajectoryController>(InController);
 }
 
-TSharedPtr<FROSBridgeMsg> FRFJTAGoalSubscriberCallback::ParseMessage(TSharedPtr<FJsonObject> JsonObject) const
+TSharedPtr<FROSBridgeMsg> URFJTASendGoalServiceCallback::ParseMessage(TSharedPtr<FJsonObject> JsonObject) const
 {
-  TSharedPtr<control_msgs::FollowJointTrajectoryActionGoal> JointStateMessage =
-      MakeShareable<control_msgs::FollowJointTrajectoryActionGoal>(new control_msgs::FollowJointTrajectoryActionGoal());
+  TSharedPtr<control_msgs::action::FollowJointTrajectory_SendGoal> JointStateMessage =
+      MakeShareable<control_msgs::action::FollowJointTrajectory_SendGoal>(new control_msgs::action::FollowJointTrajectory_SendGoal());
 
   JointStateMessage->FromJson(JsonObject);
 
   return StaticCastSharedPtr<FROSBridgeMsg>(JointStateMessage);
 }
 
-void FRFJTAGoalSubscriberCallback::Callback(TSharedPtr<FROSBridgeMsg> Msg)
+void URFJTASendGoalServiceCallback::Callback(TSharedPtr<FROSBridgeMsg> Msg)
 {
   if (JointTrajectoryController)
   {
-    TSharedPtr<control_msgs::FollowJointTrajectoryActionGoal> TrajectoryMsg = StaticCastSharedPtr<control_msgs::FollowJointTrajectoryActionGoal>(Msg);
+    TSharedPtr<control_msgs::action::FollowJointTrajectory_SendGoal> TrajectoryMsg = StaticCastSharedPtr<control_msgs::action::FollowJointTrajectory_SendGoal>(Msg);
 
     TArray<FString> JointNames = TrajectoryMsg->GetGoal().GetTrajectory().GetJointNames();
     actionlib_msgs::GoalID Id = TrajectoryMsg->GetGoalId();

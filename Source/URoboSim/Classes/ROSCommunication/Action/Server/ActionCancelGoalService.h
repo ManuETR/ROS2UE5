@@ -2,25 +2,25 @@
 
 #include "RActionServer.h"
 // clang-format off
-#include "ActionCancelSubscriber.generated.h"
+#include "ActionCancelGoalService.generated.h"
 // clang-format on
 
 UCLASS()
-class UROBOSIM_API URActionCancelSubscriber : public URActionSubscriber
+class UROBOSIM_API URActionCancelGoalService : public URActionSubscriber
 {
 	GENERATED_BODY()
 
 public:
-	URActionCancelSubscriber();
+	URActionCancelGoalService();
 
 public:
 	virtual void CreateSubscriber() override;
 };
 
-class UROBOSIM_API FActionCancelSubscriberCallback : public FROSBridgeSubscriber
+class UROBOSIM_API FActionCancelGoalServiceCallback : public FROSBridgeSubscriber
 {
 public:
-	FActionCancelSubscriberCallback(const FString& InTopic, const FString& InType, UObject* InController);
+	FActionCancelGoalServiceCallback(const FString& InTopic, const FString& InType, UObject* InController);
 
 	TSharedPtr<FROSBridgeMsg> ParseMessage(TSharedPtr<FJsonObject> JsonObject) const override;
 

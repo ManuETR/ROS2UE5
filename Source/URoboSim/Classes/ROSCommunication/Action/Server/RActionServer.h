@@ -22,7 +22,7 @@ public:
 };
 
 UCLASS()
-class UROBOSIM_API URActionSubscriber : public URSubscriber
+class UROBOSIM_API URActionService : public UServiceServer
 {
   GENERATED_BODY()
 

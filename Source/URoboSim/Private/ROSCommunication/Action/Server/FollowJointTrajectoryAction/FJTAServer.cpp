@@ -26,14 +26,14 @@ void URFJTAServer::SetActionServerParameters(URActionServerParameter *&ActionSer
 
 void URFJTAServer::CreateActionServer()
 {
-  CancelSubscriber = NewObject<URFJTACancelSubscriber>(GetOwner());
+  CancelSubscriber = NewObject<URFJTACancelGoalService>(GetOwner());
   StatusPublisher = NewObject<URFJTAStatusPublisher>(GetOwner());
-  ResultPublisher = NewObject<URFJTAResultPublisher>(GetOwner());
-  GoalSubscriber = NewObject<URFJTAGoalSubscriber>(GetOwner());
+  ResultPublisher = NewObject<URFJTAGetResultService>(GetOwner());
+  GoalSubscriber = NewObject<URFJTASendGoalService>(GetOwner());
   FeedbackPublisher = NewObject<URFJTAFeedbackPublisher>(GetOwner());
 
   Cast<URFJTAFeedbackPublisher>(FeedbackPublisher)->FrameId = FrameId;
-  Cast<URFJTAResultPublisher>(ResultPublisher)->FrameId = FrameId;
+  Cast<URFJTAGetResultService>(ResultPublisher)->FrameId = FrameId;
   Cast<URFJTAStatusPublisher>(StatusPublisher)->FrameId = FrameId;
 
   Cast<URFJTAFeedbackPublisher>(FeedbackPublisher)->JointParamTopic = JointParamTopic;
