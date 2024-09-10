@@ -32,6 +32,9 @@ void URModelBuilder::Load(USDFModel* InModelDescription, ARModel* OutModel,FVect
       SetupControl();
       SetupLogger();
     }
+  else {
+    UE_LOG(LogTemp, Error, TEXT("[ModelBuilder] Loading failed!"));
+  }
 }
 
 // Load links

@@ -46,4 +46,5 @@ class UROBOSIM_API URoboSimGameInstance : public UWorldControlGameInstance
 
   FString JointStatePublisherMessageType;
   FString SetJointStateServerType;
+
 };

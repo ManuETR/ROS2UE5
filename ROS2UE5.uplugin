@@ -34,6 +34,11 @@
 			"Type": "Runtime",
 			"LoadingPhase": "Default"
 		},
+		{
+			"Name": "ConfigHandler",
+			"Type": "Editor",
+			"LoadingPhase": "Default"
+		},
 	],
 	"Plugins": [
 		{
