@@ -30,6 +30,8 @@ public class ConfigLoader : ModuleRules
         "XmlParser",
 				"Engine",
 				"UnrealEd",
+        "UROSBridge",
+        "URoboSim",
 				// ... add other public dependencies that you statically link with here ...
 			}
 			);
@@ -42,11 +44,8 @@ public class ConfigLoader : ModuleRules
 				"Engine",
 				"Slate",
 				"SlateCore",
-				"URoboSim",
 				"URoboSimEditor",
-        "UConversions",
-        "UROSBridge",
-        "UROSControl",
+        
 				// ... add private dependencies that you statically link with here ...	
 			}
 			);

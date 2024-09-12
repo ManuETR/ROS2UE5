@@ -22,7 +22,8 @@ public class URoboSim : ModuleRules
 						"Json",
 						"XmlParser",
 						"SeqLog",
-					}
+            "UROSBridge",
+          }
 			);
 
 
@@ -31,9 +32,6 @@ public class URoboSim : ModuleRules
 				{
 					"CoreUObject",
 					"Engine",
-					"UConversions",
-					"UROSBridge",
-					"UROSControl",
 					"XmlParser",
 				}
 			);

@@ -30,11 +30,6 @@
 			"LoadingPhase": "Default"
 		},
 		{
-			"Name": "UROSControl",
-			"Type": "Runtime",
-			"LoadingPhase": "Default"
-		},
-		{
 			"Name": "ConfigLoader",
 			"Type": "Editor",
 			"LoadingPhase": "Default"

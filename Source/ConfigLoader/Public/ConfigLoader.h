@@ -2,7 +2,7 @@
 
 #include "CoreMinimal.h"
 #include "Modules/ModuleManager.h"
-#include "URoboSim/Public/URoboSimGameInstance.h"
+#include "URoboSimGameInstance.h"
 
 class FConfigLoaderModule : public IModuleInterface
 {

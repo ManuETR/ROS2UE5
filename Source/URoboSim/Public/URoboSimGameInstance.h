@@ -3,7 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "UROSControl/Public/WorldControlGameInstance.h"
+#include "ROSBridgeGameInstance.h"
 #include "AJointActor.h"
 #include "ROSCommunication/KnowRobInterface.h"
 #include "ROSCommunication/Service/Server/SetEnvironmentJointStatesServer.h"
@@ -13,7 +13,7 @@
  *
  */
 UCLASS()
-class UROBOSIM_API URoboSimGameInstance : public UWorldControlGameInstance
+class UROBOSIM_API URoboSimGameInstance : public UROSBridgeGameInstance
 {
   GENERATED_BODY()
  public:

@@ -20,6 +20,8 @@ public class URoboSimEditor : ModuleRules
                             ,"MeshDescription",
                             "RenderCore",
                             "Json",
+							"UROSBridge",
+							"URoboSim",
                         }
 			);
 
@@ -30,9 +32,6 @@ public class URoboSimEditor : ModuleRules
 				"CoreUObject",
 				"Engine",
 				"Slate",
-				"UConversions",
-				"UROSBridge",
-				"URoboSim",
 				"SlateCore",
 				"XmlParser",
 				"CustomMeshComponent",
