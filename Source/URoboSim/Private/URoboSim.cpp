@@ -7,7 +7,6 @@
 
 void FURoboSimModule::StartupModule()
 {
-	UE_LOG(LogTemp, Error, TEXT("STARTUP"));
 	// This code will execute after your module is loaded into memory; the exact timing is specified in the .uplugin file per-module
 }
 

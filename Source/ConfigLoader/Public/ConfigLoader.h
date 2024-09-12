@@ -4,7 +4,7 @@
 #include "Modules/ModuleManager.h"
 #include "URoboSim/Public/URoboSimGameInstance.h"
 
-class FConfigHandlerModule : public IModuleInterface
+class FConfigLoaderModule : public IModuleInterface
 {
 public:
 
@@ -15,7 +15,6 @@ public:
 private:
   FString CommandLineArgValue();
   UWorld* World;
-  URoboSimGameInstance* GameInstance;
 
   void LoadCustomConfig();
   void LoadROSConfig(TSharedPtr<FJsonObject> ROSConfig);

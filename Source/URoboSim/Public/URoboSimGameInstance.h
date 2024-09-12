@@ -3,7 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "WorldControlGameInstance.h"
+#include "UROSControl/Public/WorldControlGameInstance.h"
 #include "AJointActor.h"
 #include "ROSCommunication/KnowRobInterface.h"
 #include "ROSCommunication/Service/Server/SetEnvironmentJointStatesServer.h"
@@ -17,7 +17,7 @@ class UROBOSIM_API URoboSimGameInstance : public UWorldControlGameInstance
 {
   GENERATED_BODY()
  public:
-    URoboSimGameInstance();
+  URoboSimGameInstance();
   virtual void OnStart() override;
   virtual void Tick(float DeltaTime) override;
 

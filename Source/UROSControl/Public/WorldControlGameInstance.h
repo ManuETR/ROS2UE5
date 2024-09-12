@@ -3,7 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "ROSBridgeGameInstance.h"
+#include "UROSBridge/Public/ROSBridgeGameInstance.h"
 #include "RWCManager.h"
 #include "WorldControlGameInstance.generated.h"
 

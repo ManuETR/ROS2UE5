@@ -1,4 +1,4 @@
-#include "ConfigHandler.h"
+#include "ConfigLoader.h"
 #include "Editor.h"
 #include "Engine/World.h"
 #include "FileHelpers.h"
@@ -12,23 +12,23 @@
 #include "URoboSim/Classes/Controller/ControllerType/JointController/RJointController.h"
 #include "URoboSim/Classes/Logger/RLoggerComponent.h"
 
-#define LOCTEXT_NAMESPACE "FConfigHandlerModule"
+#define LOCTEXT_NAMESPACE "FConfigLoaderModule"
 
-void FConfigHandlerModule::StartupModule()
+void FConfigLoaderModule::StartupModule()
 {
-  FEditorDelegates::OnEditorBoot.AddRaw(this, &FConfigHandlerModule::OnEditorInit);
+  FEditorDelegates::OnEditorBoot.AddRaw(this, &FConfigLoaderModule::OnEditorInit);
 
 	// This code will execute after your module is loaded into memory; the exact timing is specified in the .uplugin file per-module
 }
 
-void FConfigHandlerModule::ShutdownModule()
+void FConfigLoaderModule::ShutdownModule()
 {
 	// This function may be called during shutdown to clean up your module.  For modules that support dynamic reloading,
 	// we call this function before unloading the module.
 }
 
 
-FString FConfigHandlerModule::CommandLineArgValue()
+FString FConfigLoaderModule::CommandLineArgValue()
 {
   FString s;
   UE_LOG(LogTemp, Log, TEXT("[Config] CommandLineArg %s"), FCommandLine::Get());
@@ -40,24 +40,33 @@ FString FConfigHandlerModule::CommandLineArgValue()
   return TEXT("");
 }
 
-void FConfigHandlerModule::LoadROSConfig(TSharedPtr<FJsonObject> ROSConfig) {
+/*
+  Load the "ros" object from the json
+  { "bridge": { "ip": string, "port" : number } }
+*/ 
+void FConfigLoaderModule::LoadROSConfig(TSharedPtr<FJsonObject> ROSConfig) {
   TSharedPtr<FJsonObject> ROSBridgeConfig = ROSConfig->GetObjectField(TEXT("bridge"));
+  URoboSimGameInstance* GameInstance = (URoboSimGameInstance*) World->GetGameInstance();
 
   if (ROSBridgeConfig.IsValid()) {
     if (ROSBridgeConfig->HasField(TEXT("ip"))) {
-      // ROSBridgeServerHost = ROSBridgeConfig->GetStringField(TEXT("ip"));
-      // UE_LOG(LogTemp, Log, TEXT("[Config] Setting rosbridge host to %s"), *ROSBridgeServerHost);
+      GameInstance->ROSBridgeServerHost = ROSBridgeConfig->GetStringField(TEXT("ip"));
+      UE_LOG(LogTemp, Log, TEXT("[Config] Setting rosbridge host to %s"), *GameInstance->ROSBridgeServerHost);
     }
 
     if (ROSBridgeConfig->HasField(TEXT("port"))) {
-      // ROSBridgeServerPort = ROSBridgeConfig->GetNumberField(TEXT("port"));
-      // UE_LOG(LogTemp, Log, TEXT("[Config] Setting rosbridge port to %d"), ROSBridgeServerPort);
+      GameInstance->ROSBridgeServerPort = ROSBridgeConfig->GetNumberField(TEXT("port"));
+      UE_LOG(LogTemp, Log, TEXT("[Config] Setting rosbridge port to %d"), GameInstance->ROSBridgeServerPort);
     }
   }
 
 }
 
-void FConfigHandlerModule::LoadEnvironmentConfig(TSharedPtr<FJsonObject> EnvironmentConfig) {
+/*
+  Load the "environment" object from the json
+  { "map": string }
+*/
+void FConfigLoaderModule::LoadEnvironmentConfig(TSharedPtr<FJsonObject> EnvironmentConfig) {
   if (EnvironmentConfig->HasField(TEXT("map"))) {
     FString Map = "/Game/" + EnvironmentConfig->GetStringField(TEXT("map"));
 
@@ -67,7 +76,11 @@ void FConfigHandlerModule::LoadEnvironmentConfig(TSharedPtr<FJsonObject> Environ
 }
 
 
-void FConfigHandlerModule::LoadRobotsConfig(TArray<TSharedPtr<FJsonValue>> RobotsConfig) {
+/*
+  Load the "environment" object from the json
+  { "robot": string, "position": array, "subscribers": array<Subscribers>, "controllers": array<Controller> }
+*/
+void FConfigLoaderModule::LoadRobotsConfig(TArray<TSharedPtr<FJsonValue>> RobotsConfig) {
   for (TSharedPtr<FJsonValue> Config : RobotsConfig) {
     TSharedPtr<FJsonObject> RobotConfig = Config->AsObject();
     FVector Location(0, 0, 0);
@@ -135,19 +148,23 @@ void FConfigHandlerModule::LoadRobotsConfig(TArray<TSharedPtr<FJsonValue>> Robot
   }
 }
 
-void FConfigHandlerModule::LoadLoggingConfig(TSharedPtr<FJsonObject> LogginConfig) {
+/*
+  Load the "logging" object from the json
+  { "map": string }
+*/
+void FConfigLoaderModule::LoadLoggingConfig(TSharedPtr<FJsonObject> LogginConfig) {
   if (LogginConfig->HasField("enable")) {
     // TODO enable logging
   }
 }
 
-void FConfigHandlerModule::OnEditorInit(double Duration) {
+void FConfigLoaderModule::OnEditorInit(double Duration) {
   UE_LOG(LogTemp, Log, TEXT("[Config] Start loading..."));
   LoadCustomConfig();
   UE_LOG(LogTemp, Log, TEXT("[Config] Finished"));
 }
 
-void FConfigHandlerModule::LoadCustomConfig()
+void FConfigLoaderModule::LoadCustomConfig()
 {
   FString ConfigFilePath = CommandLineArgValue();
   if (ConfigFilePath.IsEmpty())
@@ -186,4 +203,4 @@ void FConfigHandlerModule::LoadCustomConfig()
 
 #undef LOCTEXT_NAMESPACE
 	
-IMPLEMENT_MODULE(FConfigHandlerModule, ConfigHandlers)
+IMPLEMENT_MODULE(FConfigLoaderModule, ConfigLoaders)

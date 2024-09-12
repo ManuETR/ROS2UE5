@@ -35,7 +35,7 @@
 			"LoadingPhase": "Default"
 		},
 		{
-			"Name": "ConfigHandler",
+			"Name": "ConfigLoader",
 			"Type": "Editor",
 			"LoadingPhase": "Default"
 		},

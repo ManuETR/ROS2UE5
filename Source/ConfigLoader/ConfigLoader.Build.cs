@@ -1,14 +1,14 @@
 using UnrealBuildTool;
 
-public class ConfigHandler : ModuleRules
+public class ConfigLoader : ModuleRules
 {
-	public ConfigHandler(ReadOnlyTargetRules Target) : base(Target)
+	public ConfigLoader(ReadOnlyTargetRules Target) : base(Target)
 	{
 		PCHUsage = ModuleRules.PCHUsageMode.UseExplicitOrSharedPCHs;
 		
 		PublicIncludePaths.AddRange(
 			new string[] {
-				//"ConfigHandler/Public"
+				//"ConfigLoader/Public"
 				// ... add public include paths required here ...
 			}
 			);
@@ -16,7 +16,7 @@ public class ConfigHandler : ModuleRules
 		
 		PrivateIncludePaths.AddRange(
 			new string[] {
-				//"ConfigHandler/Private",
+				//"ConfigLoader/Private",
 				// ... add other private include paths required here ...
 			}
 			);
