@@ -1,20 +1,17 @@
-// Copyright 2018, Institute for Artificial Intelligence - University of Bremen
-// Author: Michael Neumann
-
 #pragma once
 
 #include "CoreMinimal.h"
 #include "UObject/NoExportTypes.h"
-#include "SDF/SDFLink.h"
-#include "SDF/SDFJoint.h"
-#include "SDF/SDFPlugin.h"
-#include "SDFModel.generated.h"
+#include "RobotDescription/RDLink.h"
+#include "RobotDescription/RDJoint.h"
+#include "RobotDescription/RDPlugin.h"
+#include "RDModel.generated.h"
 
 /**
  *
  */
-UCLASS(BlueprintType, Category = "SDF")
-class UROBOSIM_API USDFModel : public UObject
+UCLASS(BlueprintType, Category = "RobotDescription")
+class UROBOSIM_API URDModel : public UObject
 {
 	GENERATED_BODY()
 
@@ -29,11 +26,11 @@ public:
 	bool bStatic;
 
 	UPROPERTY(EditAnywhere, Category = "Model")
-	TArray<USDFLink*> Links;
+	TArray<URDLink*> Links;
 
 	UPROPERTY(EditAnywhere, Category = "Model")
-	TArray<USDFJoint*> Joints;
+	TArray<URDJoint*> Joints;
 
 	UPROPERTY(EditAnywhere, Category = "Model")
-	TArray<USDFPlugin*> Plugins;
+	TArray<URDPlugin*> Plugins;
 };

@@ -1,6 +1,6 @@
 #include "Factory/RLinkFactory.h"
 
-URLink* URLinkFactory::Load(UObject* InOuter, USDFLink* InLinkDescription, FVector InLocation)
+URLink* URLinkFactory::Load(UObject* InOuter, URDLink* InLinkDescription, FVector InLocation)
 {
   if(!InOuter && !InLinkDescription)
     {
@@ -19,7 +19,7 @@ URLink* URLinkFactory::Load(UObject* InOuter, USDFLink* InLinkDescription, FVect
   return LinkBuilder->NewLink();
 }
 
-URLink* URLinkFactory::Load(UObject* InOuter, USDFLink* InLinkDescription)
+URLink* URLinkFactory::Load(UObject* InOuter, URDLink* InLinkDescription)
 {
   if(!InOuter && !InLinkDescription)
     {
@@ -38,7 +38,7 @@ URLink* URLinkFactory::Load(UObject* InOuter, USDFLink* InLinkDescription)
   return LinkBuilder->NewLink();
 }
 
-URLinkBuilder* URLinkFactory::CreateBuilder(USDFLink* InLinkDescription)
+URLinkBuilder* URLinkFactory::CreateBuilder(URDLink* InLinkDescription)
 {
   if(InLinkDescription->Collisions.Num()>0)
     {
@@ -50,13 +50,13 @@ URLinkBuilder* URLinkFactory::CreateBuilder(USDFLink* InLinkDescription)
     }
 }
 
-void URLinkBuilder::Init(UObject* InOuter, USDFLink* InLinkDescription,FVector InLocation)
+void URLinkBuilder::Init(UObject* InOuter, URDLink* InLinkDescription,FVector InLocation)
 {
   Model = Cast<ARModel>(InOuter);
   LinkDescription = InLinkDescription;
   LoadLocation=InLocation;
 }
-void URLinkBuilder::Init(UObject* InOuter, USDFLink* InLinkDescription)
+void URLinkBuilder::Init(UObject* InOuter, URDLink* InLinkDescription)
 {
   Model = Cast<ARModel>(InOuter);
   LinkDescription = InLinkDescription;
@@ -96,14 +96,14 @@ void URLinkBuilder::SetPose(FTransform InPose)
 
 void URLinkBuilder::SetVisuals()
 {
-  for(USDFVisual* Visual : LinkDescription->Visuals)
+  for(URDVisual* Visual : LinkDescription->Visuals)
     {
       SetVisual(Visual);
     }
 }
 
 
-void URLinkBuilder::SetVisual(USDFVisual* InVisual)
+void URLinkBuilder::SetVisual(URDVisual* InVisual)
 {
   UStaticMeshComponent* LinkComponent = NewObject<UStaticMeshComponent>(Link, FName((InVisual->Name).GetCharArray().GetData()));
   LinkComponent->RegisterComponent();
@@ -139,7 +139,7 @@ void URLinkBuilder::SetVisual(USDFVisual* InVisual)
 
 void URLinkBuilder::SetCollisions()
 {
-    for(USDFCollision* Collision : LinkDescription->Collisions)
+    for(URDCollision* Collision : LinkDescription->Collisions)
     {
         SetCollision(Collision);
     }
@@ -147,7 +147,7 @@ void URLinkBuilder::SetCollisions()
 
 
 
-void URLinkBuilder::SetCollision(USDFCollision* InCollision)
+void URLinkBuilder::SetCollision(URDCollision* InCollision)
 {
   UStaticMeshComponent* LinkComponent = NewObject<UStaticMeshComponent>(Link, FName((InCollision->Name).GetCharArray().GetData()));
   LinkComponent->CreationMethod = EComponentCreationMethod::Instance;
@@ -198,7 +198,7 @@ void URLinkBuilder::SetCollision(USDFCollision* InCollision)
     }
 }
 
-void URLinkBuilder::SetInertial(USDFLinkInertial* InInertial)
+void URLinkBuilder::SetInertial(URDLinkInertial* InInertial)
 {
   for(UStaticMeshComponent* Visual : Link->Visuals)
     {

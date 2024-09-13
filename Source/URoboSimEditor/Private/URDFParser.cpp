@@ -29,7 +29,7 @@ FURDFParser::~FURDFParser()
   Clear();
 }
 
-// Load sdf from file
+// Load urdf from file
 bool FURDFParser::Load(const FString& InFilename)
 {
   AssetRegistryModule = FModuleManager::LoadModuleChecked<FAssetRegistryModule>(FName("AssetRegistry"));
@@ -63,30 +63,30 @@ void FURDFParser::Clear()
     }
 }
 
-// Create data asset and parse sdf data into it
-USDFDataAsset* FURDFParser::ParseToNewDataAsset(UObject* InParent, FName InName, EObjectFlags InFlags)
+// Create data asset and parse urdf data into it
+URDDataAsset* FURDFParser::ParseToNewDataAsset(UObject* InParent, FName InName, EObjectFlags InFlags)
 {
   if (!bLoaded)
     {
       return nullptr;
     }
 
-  // Create a new SDFDataAsset
-  DataAsset = NewObject<USDFDataAsset>(InParent, InName, InFlags);
+  // Create a new RDDataAsset
+  DataAsset = NewObject<URDDataAsset>(InParent, InName, InFlags);
 
-  // Parse sdf data and fill the data asset
+  // Parse urdf data and fill the data asset
   Parse();
 
   return DataAsset;
 }
 
-// Check if sdf data is valid
+// Check if urdf data is valid
 bool FURDFParser::IsValid() {
   if (XmlFile == nullptr) {
     return false;
   }
 
-  // Check if root node is <sdf> or <gazebo> (sdf version 1.2)
+  // Check if root node is <urdf>  (urdf version 1.2)
   if (!XmlFile->GetRootNode()->GetTag().Equals(TEXT("robot"))) {
     UE_LOG(LogTemp, Error, TEXT("[%s][%d] Root node is not <robot>"), TEXT(__FUNCTION__), __LINE__);
     return false;
@@ -98,16 +98,16 @@ bool FURDFParser::IsValid() {
 void FURDFParser::Parse() {
   DataAsset->Version = TEXT("__default__");
 
-  USDFModel* NewModel = nullptr;
+  URDModel* NewModel = nullptr;
 
   // Get "name" from node attribute
   const FString Name = XmlFile->GetRootNode()->GetAttribute(TEXT("name"));
   if(!Name.IsEmpty()) {
-    NewModel = NewObject<USDFModel>(DataAsset, FName(*Name));
+    NewModel = NewObject<URDModel>(DataAsset, FName(*Name));
     NewModel->Name = Name;
   } else {
     UE_LOG(LogTemp, Warning, TEXT("[%s][%d] <model> has no \"name\" attribute, added a default value.."), *FString(__FUNCTION__), __LINE__);
-    NewModel = NewObject<USDFModel>(DataAsset/*, FName(TEXT("__default__"))*/);
+    NewModel = NewObject<URDModel>(DataAsset/*, FName(TEXT("__default__"))*/);
     NewModel->Name = TEXT("__default__");
   }
  
@@ -123,9 +123,9 @@ void FURDFParser::Parse() {
     }
   }
 
-  for (USDFJoint* Joint : NewModel->Joints) {
+  for (URDJoint* Joint : NewModel->Joints) {
     FTransform Relative = FindRelativeTransform(Joint->Parent, NewModel);
-    USDFLink* Link = FindLink(Joint->Child, NewModel);
+    URDLink* Link = FindLink(Joint->Child, NewModel);
     FTransform Transform = Joint->Pose;
     Joint->Axis->bUseParentModelFrame = false;
     FTransform::Multiply(&Link->Pose, &Transform, &Relative);
@@ -135,19 +135,19 @@ void FURDFParser::Parse() {
 }
 
 // Parse <link> node
-void FURDFParser::ParseLink(const FXmlNode* InNode, USDFModel*& OutModel) {
+void FURDFParser::ParseLink(const FXmlNode* InNode, URDModel*& OutModel) {
   // Ptr to the new link
-  USDFLink* NewLink = nullptr;
+  URDLink* NewLink = nullptr;
 
   // Get "name" from node attribute
   const FString Name = InNode->GetAttribute(TEXT("name"));
   if (!Name.IsEmpty()) {
-    NewLink = NewObject<USDFLink>(OutModel, FName(*Name));
+    NewLink = NewObject<URDLink>(OutModel, FName(*Name));
     NewLink->Name = Name;
     CurrentLinkName = Name;
   } else {
     UE_LOG(LogTemp, Warning, TEXT("[%s][%d] <link> has no \"name\" attribute, added a default value.."), *FString(__FUNCTION__), __LINE__);
-    NewLink = NewObject<USDFLink>(OutModel/*, FName(TEXT("__default__"))*/);
+    NewLink = NewObject<URDLink>(OutModel/*, FName(TEXT("__default__"))*/);
     NewLink->Name = TEXT("__default__");
   }
 
@@ -168,7 +168,7 @@ void FURDFParser::ParseLink(const FXmlNode* InNode, USDFModel*& OutModel) {
   }
   if(NewLink->Collisions.Num() == 0)
     {
-      USDFCollision* Collision = CreateVirtualCollision(NewLink);
+      URDCollision* Collision = CreateVirtualCollision(NewLink);
       if(Collision)
         {
           NewLink->Collisions.Add(Collision);
@@ -184,16 +184,16 @@ void FURDFParser::ParseLink(const FXmlNode* InNode, USDFModel*& OutModel) {
 }
 
 // Parse <visual> node
-void FURDFParser::ParseVisual(const FXmlNode* InNode, USDFLink*& OutLink) {
-  USDFVisual* NewVisual = nullptr;
+void FURDFParser::ParseVisual(const FXmlNode* InNode, URDLink*& OutLink) {
+  URDVisual* NewVisual = nullptr;
 
   const FString Name = InNode->GetAttribute(TEXT("name"));
   if (!Name.IsEmpty()) {
-    NewVisual = NewObject<USDFVisual>(OutLink, FName(*Name));
+    NewVisual = NewObject<URDVisual>(OutLink, FName(*Name));
     NewVisual->Name = Name;
   } else {
     UE_LOG(LogTemp, Warning, TEXT("[%s][%d] <link> has no \"name\" attribute, added a default value.."), *FString(__FUNCTION__), __LINE__);
-    NewVisual = NewObject<USDFVisual>(OutLink/*, FName(TEXT("__default__"))*/);
+    NewVisual = NewObject<URDVisual>(OutLink/*, FName(TEXT("__default__"))*/);
     NewVisual->Name = OutLink->Name + TEXT("_visual");
   }
 
@@ -203,11 +203,11 @@ void FURDFParser::ParseVisual(const FXmlNode* InNode, USDFLink*& OutLink) {
       // TODO
       NewVisual->Pose = PoseContentToFTransform(ChildNode->GetAttribute(TEXT("xyz")) + " " + ChildNode->GetAttribute(TEXT("rpy")));
     } else if (ChildNode->GetTag().Equals(TEXT("geometry"))) {
-      ParseGeometry(ChildNode, NewVisual->Geometry, ESDFType::Visual);
-      if(NewVisual->Geometry->Type == ESDFGeometryType::Box ||
-          NewVisual->Geometry->Type == ESDFGeometryType::Cylinder ||
-          NewVisual->Geometry->Type == ESDFGeometryType::Sphere) {
-        NewVisual->Geometry->Mesh = CreateMesh(ESDFType::Visual, NewVisual->Geometry->Type, Name, RStaticMeshUtils::GetGeometryParameter(NewVisual->Geometry));
+      ParseGeometry(ChildNode, NewVisual->Geometry, ERDType::Visual);
+      if(NewVisual->Geometry->Type == ERDGeometryType::Box ||
+          NewVisual->Geometry->Type == ERDGeometryType::Cylinder ||
+          NewVisual->Geometry->Type == ERDGeometryType::Sphere) {
+        NewVisual->Geometry->Mesh = CreateMesh(ERDType::Visual, NewVisual->Geometry->Type, Name, RStaticMeshUtils::GetGeometryParameter(NewVisual->Geometry));
       }
     } else {
       UE_LOG(LogTemp, Warning, TEXT("[%s][%d] <link> <visual> child <%s> not supported, ignored.."), *FString(__FUNCTION__), __LINE__, *ChildNode->GetTag());
@@ -218,16 +218,16 @@ void FURDFParser::ParseVisual(const FXmlNode* InNode, USDFLink*& OutLink) {
 }
 
 // Parse <collision> node
-void FURDFParser::ParseCollision(const FXmlNode* InNode, USDFLink*& OutLink) {
-  USDFCollision* NewCollision = nullptr;
+void FURDFParser::ParseCollision(const FXmlNode* InNode, URDLink*& OutLink) {
+  URDCollision* NewCollision = nullptr;
 
   const FString Name = InNode->GetAttribute(TEXT("name"));
   if (!Name.IsEmpty()) {
-    NewCollision = NewObject<USDFCollision>(OutLink, FName(*Name));
+    NewCollision = NewObject<URDCollision>(OutLink, FName(*Name));
     NewCollision->Name = Name;
   } else {
     UE_LOG(LogTemp, Warning, TEXT("[%s][%d] <collision> has no \"name\" attribute, added a default value.."), *FString(__FUNCTION__), __LINE__);
-    NewCollision = NewObject<USDFCollision>(OutLink/*, FName(TEXT("__default__"))*/);
+    NewCollision = NewObject<URDCollision>(OutLink/*, FName(TEXT("__default__"))*/);
     NewCollision->Name = OutLink->Name + TEXT("_collision");
   }
 
@@ -237,11 +237,11 @@ void FURDFParser::ParseCollision(const FXmlNode* InNode, USDFLink*& OutLink) {
       // TODO
       NewCollision->Pose = PoseContentToFTransform(ChildNode->GetAttribute(TEXT("xyz")) + " " + ChildNode->GetAttribute(TEXT("rpy")));
     } else if (ChildNode->GetTag().Equals(TEXT("geometry"))) {
-      ParseGeometry(ChildNode, NewCollision->Geometry, ESDFType::Collision);
-      if(NewCollision->Geometry->Type == ESDFGeometryType::Box ||
-          NewCollision->Geometry->Type == ESDFGeometryType::Cylinder ||
-          NewCollision->Geometry->Type == ESDFGeometryType::Sphere) {
-        NewCollision->Geometry->Mesh = CreateMesh(ESDFType::Collision, NewCollision->Geometry->Type, Name, RStaticMeshUtils::GetGeometryParameter(NewCollision->Geometry));
+      ParseGeometry(ChildNode, NewCollision->Geometry, ERDType::Collision);
+      if(NewCollision->Geometry->Type == ERDGeometryType::Box ||
+          NewCollision->Geometry->Type == ERDGeometryType::Cylinder ||
+          NewCollision->Geometry->Type == ERDGeometryType::Sphere) {
+        NewCollision->Geometry->Mesh = CreateMesh(ERDType::Collision, NewCollision->Geometry->Type, Name, RStaticMeshUtils::GetGeometryParameter(NewCollision->Geometry));
         // RStaticMeshUtils::CreateStaticMeshThroughBrush(OutLink,NewCollision);
       }
     } else {
@@ -255,8 +255,8 @@ void FURDFParser::ParseCollision(const FXmlNode* InNode, USDFLink*& OutLink) {
 }
 
 // Parse <geometry> <mesh> node
-void FURDFParser::ParseGeometryMesh(const FXmlNode* InNode, USDFGeometry*& OutGeometry, ESDFType Type) {
-  OutGeometry->Type = ESDFGeometryType::Mesh;
+void FURDFParser::ParseGeometryMesh(const FXmlNode* InNode, URDGeometry*& OutGeometry, ERDType Type) {
+  OutGeometry->Type = ERDGeometryType::Mesh;
 
   if (!InNode->GetAttribute(TEXT("filename")).IsEmpty()) {
     OutGeometry->Uri = InNode->GetAttribute(TEXT("filename"));
@@ -266,7 +266,7 @@ void FURDFParser::ParseGeometryMesh(const FXmlNode* InNode, USDFGeometry*& OutGe
   }
 }
 
-void FURDFParser::ParseLinkInertial(const FXmlNode* InNode, USDFLink*& OutLink) {
+void FURDFParser::ParseLinkInertial(const FXmlNode* InNode, URDLink*& OutLink) {
   // Iterate <link> <inertial> child nodes
   for (const auto& ChildNode : InNode->GetChildrenNodes()) {
     if (ChildNode->GetTag().Equals(TEXT("mass"))) {
@@ -282,7 +282,7 @@ void FURDFParser::ParseLinkInertial(const FXmlNode* InNode, USDFLink*& OutLink) 
 }
 
 // Parse <geometry> node
-void FURDFParser::ParseGeometry(const FXmlNode* InNode, USDFGeometry*& OutGeometry, ESDFType Type) {
+void FURDFParser::ParseGeometry(const FXmlNode* InNode, URDGeometry*& OutGeometry, ERDType Type) {
   // Iterate <geometry> child nodes
   for (const auto& ChildNode : InNode->GetChildrenNodes()) {
     if (ChildNode->GetTag().Equals(TEXT("mesh"))) {
@@ -301,8 +301,8 @@ void FURDFParser::ParseGeometry(const FXmlNode* InNode, USDFGeometry*& OutGeomet
 }
 
 // Parse <geometry> <box> node
-void FURDFParser::ParseGeometryBox(const FXmlNode* InNode, USDFGeometry*& OutGeometry) {
-  OutGeometry->Type = ESDFGeometryType::Box;
+void FURDFParser::ParseGeometryBox(const FXmlNode* InNode, URDGeometry*& OutGeometry) {
+  OutGeometry->Type = ERDGeometryType::Box;
 
   if (!InNode->GetAttribute(TEXT("size")).IsEmpty()) {
     OutGeometry->Size = SizeToFVector(InNode->GetAttribute(TEXT("size")));
@@ -312,8 +312,8 @@ void FURDFParser::ParseGeometryBox(const FXmlNode* InNode, USDFGeometry*& OutGeo
 }
 
 // Parse <geometry> <cylinder> node
-void FURDFParser::ParseGeometryCylinder(const FXmlNode* InNode, USDFGeometry*& OutGeometry) {
-  OutGeometry->Type = ESDFGeometryType::Cylinder;
+void FURDFParser::ParseGeometryCylinder(const FXmlNode* InNode, URDGeometry*& OutGeometry) {
+  OutGeometry->Type = ERDGeometryType::Cylinder;
 
   if (!InNode->GetAttribute(TEXT("radius")).IsEmpty()) {
     OutGeometry->Radius = FConversions::MToCm(FCString::Atof(*InNode->GetAttribute(TEXT("radius"))));
@@ -329,8 +329,8 @@ void FURDFParser::ParseGeometryCylinder(const FXmlNode* InNode, USDFGeometry*& O
 }
 
 // Parse <geometry> <sphere> node
-void FURDFParser::ParseGeometrySphere(const FXmlNode* InNode, USDFGeometry*& OutGeometry) {
-  OutGeometry->Type = ESDFGeometryType::Sphere;
+void FURDFParser::ParseGeometrySphere(const FXmlNode* InNode, URDGeometry*& OutGeometry) {
+  OutGeometry->Type = ERDGeometryType::Sphere;
 
   if (!InNode->GetAttribute(TEXT("radius")).IsEmpty()) {
     OutGeometry->Radius = FConversions::MToCm(FCString::Atof(*InNode->GetAttribute(TEXT("radius"))));
@@ -340,18 +340,18 @@ void FURDFParser::ParseGeometrySphere(const FXmlNode* InNode, USDFGeometry*& Out
 }
 
 // Parse <joint> node
-void FURDFParser::ParseJoint(const FXmlNode* InNode, USDFModel*& OutModel) {
+void FURDFParser::ParseJoint(const FXmlNode* InNode, URDModel*& OutModel) {
   // Pointer to the new joint
-  USDFJoint* NewJoint = nullptr;
+  URDJoint* NewJoint = nullptr;
 
   // Get "name" from node attribute
   const FString Name = InNode->GetAttribute(TEXT("name"));
   if (!Name.IsEmpty()) {
-    NewJoint = NewObject<USDFJoint>(OutModel, FName(*Name));
+    NewJoint = NewObject<URDJoint>(OutModel, FName(*Name));
     NewJoint->Name = Name;
   } else {
     UE_LOG(LogTemp, Warning, TEXT("[%s][%d] <joint> has no \"name\" attribute, added a default value.."), *FString(__FUNCTION__), __LINE__);
-    NewJoint = NewObject<USDFJoint>(OutModel/*, FName(TEXT("__default__"))*/);
+    NewJoint = NewObject<URDJoint>(OutModel/*, FName(TEXT("__default__"))*/);
     NewJoint->Name = TEXT("__default__");
   }
 
@@ -387,18 +387,18 @@ void FURDFParser::ParseJoint(const FXmlNode* InNode, USDFModel*& OutModel) {
 }
 
 // Parse <joint> <axis> node
-void FURDFParser::ParseJointAxis(const FXmlNode* InNode, USDFJoint*& OutJoint) {
+void FURDFParser::ParseJointAxis(const FXmlNode* InNode, URDJoint*& OutJoint) {
   OutJoint->Axis->Xyz = XyzToFVector(InNode->GetAttribute(TEXT("xyz")));
   OutJoint->Axis->bUseParentModelFrame = true;
 }
 
 // Parse <joint> <axis> <limit> node
-void FURDFParser::ParseJointAxisLimit(const FXmlNode* InNode, USDFJoint*& OutJoint) {
+void FURDFParser::ParseJointAxisLimit(const FXmlNode* InNode, URDJoint*& OutJoint) {
   if (!InNode->GetAttribute(TEXT("lower")).IsEmpty()) {
-    OutJoint->Axis->SetLowerLimitFromSDF(FCString::Atof(*InNode->GetAttribute(TEXT("lower"))));
+    OutJoint->Axis->SetLowerLimitFrom(FCString::Atof(*InNode->GetAttribute(TEXT("lower"))));
   }
   if (!InNode->GetAttribute(TEXT("upper")).IsEmpty()) {
-    OutJoint->Axis->SetUpperLimitFromSDF(FCString::Atof(*InNode->GetAttribute(TEXT("upper"))));
+    OutJoint->Axis->SetUpperLimitFrom(FCString::Atof(*InNode->GetAttribute(TEXT("upper"))));
   }
   if (!InNode->GetAttribute(TEXT("effort")).IsEmpty()) {
     OutJoint->Axis->Effort = FCString::Atof(*InNode->GetAttribute(TEXT("effort")));

@@ -4,6 +4,8 @@
 
 #include "Physics/RModel.h"
 #include "UObject/Interface.h"
+#include "ROSCommunication/RROSCommunicationComponent.h"
+#include "Controller/RControllerComponent.h"
 // clang-format off
 #include "RobotInterface.generated.h"
 // clang-format on

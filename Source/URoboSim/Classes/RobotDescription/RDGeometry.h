@@ -1,18 +1,15 @@
-// Copyright 2018, Institute for Artificial Intelligence - University of Bremen
-// Author: Michael Neumann
-
 #pragma once
 
 #include "CoreMinimal.h"
 #include "Runtime/Engine/Classes/Engine/StaticMesh.h"
 #include "UObject/NoExportTypes.h"
-#include "SDFGeometry.generated.h"
+#include "RDGeometry.generated.h"
 
 /**
 *
 */
-UENUM(BlueprintType, Category = "SDF")
-enum class ESDFGeometryType : uint8
+UENUM(BlueprintType, Category = "RobotDescription")
+enum class ERDGeometryType : uint8
 {
 	None			UMETA(DisplayName = "None"),
 	Mesh			UMETA(DisplayName = "Mesh"),
@@ -24,16 +21,16 @@ enum class ESDFGeometryType : uint8
 /**
  *
  */
-UCLASS(BlueprintType, Category = "SDF")
-class UROBOSIM_API USDFGeometry : public UObject
+UCLASS(BlueprintType, Category = "RobotDescription")
+class UROBOSIM_API URDGeometry : public UObject
 {
 	GENERATED_BODY()
 
 public:
-	USDFGeometry();
+	URDGeometry();
 
 	UPROPERTY(EditAnywhere, Category = "Geometry")
-	ESDFGeometryType Type;
+	ERDGeometryType Type;
 
 	UPROPERTY(EditAnywhere, Category = "Geometry|Mesh")
 	FString Uri;

@@ -7,12 +7,12 @@
 #include "CoreMinimal.h"
 #include "UObject/NoExportTypes.h"
 #include "Engine/StaticMesh.h"
-#include "SDF/SDFDataAsset.h"
-#include "SDF/SDFGeometry.h"
-#include "SDF/SDFModel.h"
-#include "SDF/SDFLink.h"
-#include "SDF/SDFJoint.h"
-#include "SDF/SDFCollision.h"
+#include "RobotDescription/RDDataAsset.h"
+#include "RobotDescription/RDGeometry.h"
+#include "RobotDescription/RDModel.h"
+#include "RobotDescription/RDLink.h"
+#include "RobotDescription/RDJoint.h"
+#include "RobotDescription/RDCollision.h"
 #include "AssetRegistry/AssetRegistryModule.h"
 #include "RStaticMeshEditUtils.h"
 #include "UObject/ObjectMacros.h" // EObjectFlags
@@ -23,7 +23,7 @@
 /**
 *
 */
-enum class ESDFType : uint8
+enum class ERDType : uint8
 {
   None,
   Visual,
@@ -43,8 +43,8 @@ public:
   // Clear parser
   virtual void Clear() = 0;
 
-  // Create data asset and parse sdf data into it
-  virtual USDFDataAsset* ParseToNewDataAsset(UObject* InParent, FName InName, EObjectFlags InFlags) = 0;
+  // Create data asset and parse data into it
+  virtual URDDataAsset* ParseToNewDataAsset(UObject* InParent, FName InName, EObjectFlags InFlags) = 0;
 
   virtual void Parse() = 0;
 
@@ -52,10 +52,10 @@ public:
   virtual FTransform PoseContentToFTransform(const FString& InPoseData);
 
   // Find the FTransform from the relative to Element
-  virtual FTransform FindRelativeTransform(const FString RelativeTo, USDFModel* Model);
+  virtual FTransform FindRelativeTransform(const FString RelativeTo, URDModel* Model);
 
-  virtual USDFJoint* FindJoint(const FString Needle, USDFModel* Model);
-  virtual USDFLink* FindLink(const FString Needle, USDFModel* Model);
+  virtual URDJoint* FindJoint(const FString Needle, URDModel* Model);
+  virtual URDLink* FindLink(const FString Needle, URDModel* Model);
 
   // From <size>z y z</size> to FVector
   virtual FVector SizeToFVector(const FString& InSizeData);
@@ -82,20 +82,20 @@ protected: //Variables
   // Get mesh absolute path
   FString GetMeshAbsolutePath(const FString& Uri);
 
-  FName GenerateMeshName(ESDFType InType, FString InName);
+  FName GenerateMeshName(ERDType InType, FString InName);
   FString GeneratePackageName(FName MeshName);
-  bool CreateCollisionForMesh(UStaticMesh* OutMesh, ESDFGeometryType Type);
-  USDFCollision* CreateVirtualCollision(USDFLink* OutLink);
+  bool CreateCollisionForMesh(UStaticMesh* OutMesh, ERDGeometryType Type);
+  URDCollision* CreateVirtualCollision(URDLink* OutLink);
 
   // Import .fbx meshes from data asset
-  UStaticMesh* ImportMesh(const FString& Uri, ESDFType Type);
-  UStaticMesh* CreateMesh(ESDFType InType, ESDFGeometryType InShape, FString InName, TArray<float> InParameters);
+  UStaticMesh* ImportMesh(const FString& Uri, ERDType Type);
+  UStaticMesh* CreateMesh(ERDType InType, ERDGeometryType InShape, FString InName, TArray<float> InParameters);
 
 
   TMap<FString, FString> ROSPackagePaths;
 
   // Pointer to the generated data asset
-  USDFDataAsset* DataAsset;
+  URDDataAsset* DataAsset;
 
   // Cached directory path
   FString DirPath;

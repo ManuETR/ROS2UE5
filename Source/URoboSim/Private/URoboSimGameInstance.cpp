@@ -1,7 +1,7 @@
 #include "URoboSimGameInstance.h"
 #include "sensor_msgs/JointState.h"
 #include "std_msgs/Header.h"
-#include "SDF/SDFDataAsset.h"
+#include "RobotDescription/RDDataAsset.h"
 #include "Factory/RModelBuilder.h"
 
 URoboSimGameInstance::URoboSimGameInstance()

@@ -6,7 +6,7 @@
 #include "CoreMinimal.h"
 #include "Physics/RLink.h"
 #include "Physics/RModel.h"
-#include "SDF/SDFLink.h"
+#include "RobotDescription/RDLink.h"
 #include "RLinkFactory.generated.h"
 
 
@@ -17,8 +17,8 @@ class UROBOSIM_API URLinkBuilder : public UObject
 
 public:
 
-  virtual void  Init(UObject* InOuter, USDFLink* InLinkDescription);
-  virtual void Init(UObject* InOuter, USDFLink* InLinkDescription,FVector InLocation);
+  virtual void  Init(UObject* InOuter, URDLink* InLinkDescription);
+  virtual void Init(UObject* InOuter, URDLink* InLinkDescription,FVector InLocation);
 //  virtual URLink* NewLink(FVector InLocation);
   virtual URLink* NewLink();
 
@@ -31,7 +31,7 @@ protected:
 
 
   UPROPERTY()
-    USDFLink* LinkDescription;
+    URDLink* LinkDescription;
 
   UPROPERTY()
     URLink* Link;
@@ -42,11 +42,11 @@ protected:
   void SetPoseComponent();
 
   virtual void SetVisuals();
-  virtual void SetVisual(USDFVisual* InVisual);
+  virtual void SetVisual(URDVisual* InVisual);
   virtual void SetCollisions();
-  virtual void SetCollision(USDFCollision* InCollision);
+  virtual void SetCollision(URDCollision* InCollision);
 
-  virtual void SetInertial(USDFLinkInertial* InInertial);
+  virtual void SetInertial(URDLinkInertial* InInertial);
   virtual void SetCollisionProfile(bool InSelfColide);
   virtual void SetSimulateGravity(bool InUseGravity);
 };
@@ -57,12 +57,12 @@ class UROBOSIM_API URLinkFactory : public UObject
   GENERATED_BODY()
  public:
 
-    URLink* Load(UObject* InOuter, USDFLink* InLinkDescription);
-    URLink* Load(UObject* InOuter, USDFLink* InLinkDescription,FVector InLoaction);
+    URLink* Load(UObject* InOuter, URDLink* InLinkDescription);
+    URLink* Load(UObject* InOuter, URDLink* InLinkDescription,FVector InLoaction);
 
 protected:
 
-  virtual URLinkBuilder* CreateBuilder(USDFLink* InLinkDescription);
+  virtual URLinkBuilder* CreateBuilder(URDLink* InLinkDescription);
 
   UPROPERTY()
     URLinkBuilder* LinkBuilder;

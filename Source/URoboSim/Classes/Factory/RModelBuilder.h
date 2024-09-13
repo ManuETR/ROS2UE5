@@ -5,16 +5,16 @@
 
 #include "CoreMinimal.h"
 #include "Physics/RModel.h"
-#include "SDF/SDFDataAsset.h"
+#include "RobotDescription/RDDataAsset.h"
 #include "Factory/RLinkFactory.h"
 #include "Factory/RJointFactory.h"
 #include "Physics/RLink.h"
 #include "RModelBuilder.generated.h"
 
 
-class USDFModel;
-class USDFJoint;
-class USDFLink;
+class URDModel;
+class URDJoint;
+class URDLink;
 class URJoint;
 // class URLink;
 
@@ -37,13 +37,13 @@ public:
     URLinkFactory* LinkFactory;
 
   // Load model
-  void Load(USDFModel* InModelDescription, ARModel* OutModel,FVector InLocation);
+  void Load(URDModel* InModelDescription, ARModel* OutModel,FVector InLocation);
   void AddController(ARModel* OutModel);
 protected:
   // Called when the game starts or when spawned
 
   UPROPERTY()
-  USDFModel* ModelDescription;
+  URDModel* ModelDescription;
 
   UPROPERTY()
   ARModel* Model;

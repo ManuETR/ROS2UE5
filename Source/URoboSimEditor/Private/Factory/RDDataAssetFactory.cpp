@@ -1,19 +1,19 @@
 // Copyright 2018, Institute for Artificial Intelligence - University of Bremen
 // Author: Michael Neumann
 
-#include "Factory/SDFDataAssetFactory.h"
-#include "SDF/SDFDataAsset.h"
+#include "Factory/RDDataAssetFactory.h"
+#include "RobotDescription/RDDataAsset.h"
 #include "SDFParser.h"
 #include "URDFParser.h"
 #include "Editor.h" // FEditorDelegates
 
 // Constructor
-USDFDataAssetFactory::USDFDataAssetFactory(const FObjectInitializer& ObjectInitializer)
+URDDataAssetFactory::URDDataAssetFactory(const FObjectInitializer& ObjectInitializer)
 	: Super(ObjectInitializer)
 {
 	// UE_LOG(LogTemp, Error, TEXT("[%s]"), TEXT(__FUNCTION__));
 	// Which asset type can the factory import
-	SupportedClass = USDFDataAsset::StaticClass();
+	SupportedClass = URDDataAsset::StaticClass();
 
 	// List of formats supported by the factory. Each entry is of the form "ext;Description" where ext is the file extension
 	Formats.Add(TEXT("sdf;SDF robot description format"));
@@ -34,13 +34,13 @@ USDFDataAssetFactory::USDFDataAssetFactory(const FObjectInitializer& ObjectIniti
 
 /* Begin UFactory overrides */
 // Whether the specified file can be imported by this factory
-bool USDFDataAssetFactory::FactoryCanImport(const FString& Filename)
+bool URDDataAssetFactory::FactoryCanImport(const FString& Filename)
 {
 	return Filename.EndsWith(".sdf", ESearchCase::IgnoreCase) || Filename.EndsWith(".urdf", ESearchCase::IgnoreCase);
 }
 
 // Create a new object by importing it from a file name
-UObject* USDFDataAssetFactory::FactoryCreateFile(UClass* InClass, UObject* InParent, FName InName, EObjectFlags Flags, const FString & Filename, const TCHAR* Parms, FFeedbackContext* Warn, bool& bOutOperationCanceled)
+UObject* URDDataAssetFactory::FactoryCreateFile(UClass* InClass, UObject* InParent, FName InName, EObjectFlags Flags, const FString & Filename, const TCHAR* Parms, FFeedbackContext* Warn, bool& bOutOperationCanceled)
 {
 
 	UE_LOG(LogTemp, Log, TEXT("InName %s, InParentName %s"), *InName.ToString(), *InParent->GetName());
@@ -52,8 +52,7 @@ UObject* USDFDataAssetFactory::FactoryCreateFile(UClass* InClass, UObject* InPar
 	GEditor->GetEditorSubsystem<UImportSubsystem>()->BroadcastAssetPreImport(this, InClass, InParent, InName, Parms);
 	//FEditorDelegates::OnAssetPreImport.Broadcast(this, InClass, InParent, InName, Parms);
 
-	// Parse the .sdf buffer data into the data asset
-	USDFDataAsset* NewDataAsset;
+	URDDataAsset* NewDataAsset;
 	if (Filename.EndsWith(".sdf", ESearchCase::IgnoreCase)) {
 		FSDFParser Parser(Filename);
 		NewDataAsset = Parser.ParseToNewDataAsset(InParent, InName, Flags);

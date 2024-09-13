@@ -6,7 +6,7 @@
 #include "CoreMinimal.h"
 #include "PhysicsEngine/PhysicsConstraintComponent.h"
 #include "Physics/RStaticMeshComponent.h"
-#include "SDF/SDFJoint.h"
+#include "RobotDescription/RDJoint.h"
 #include "Sensor/REncoder.h"
 #include "Physics/RLink.h"
 #include "RPhysicsConstraintComponent.generated.h"
@@ -90,7 +90,7 @@ class UROBOSIM_API URConstraintComponent : public UPhysicsConstraintComponent
   virtual void SetDrive(const FEnableDrive &EnableDrive) {}
   virtual void SetTargetPosition(float InTargetPos){};
   virtual float GetConstraintPosition(){return 0;};
-  virtual void SetPosition(USDFJoint* InJoint){};
+  virtual void SetPosition(URDJoint* InJoint){};
   virtual void SetParentChild(UStaticMeshComponent* InParent, UStaticMeshComponent* InChild);
 
   virtual float ClampJointStateToConstraintLimit(float InJointState){return InJointState;};
@@ -162,7 +162,7 @@ class UROBOSIM_API URFixedConstraintComponent : public URConstraintComponent
   GENERATED_BODY()
     public:
     virtual void ConnectToComponents();
-  virtual void SetPosition(USDFJoint *InJoint);
+  virtual void SetPosition(URDJoint *InJoint);
 
 };
 
@@ -178,7 +178,7 @@ class UROBOSIM_API URPrismaticConstraintComponent : public URFixedConstraintComp
 
 
   virtual float ClampJointStateToConstraintLimit(float InJointState) override;
-  virtual void SetPosition(USDFJoint* InJoint);
+  virtual void SetPosition(URDJoint* InJoint);
   virtual void BeginPlay() override;
 
   virtual float GetJointPosition() override;

@@ -1,23 +1,19 @@
-// Copyright 2018, Institute for Artificial Intelligence - University of Bremen
-// Author: Michael Neumann
-
 #pragma once
 
 #include "CoreMinimal.h"
 #include "UObject/NoExportTypes.h"
-#include "SDFPlugin.generated.h"
+#include "RDPlugin.generated.h"
 
 /**
  *
  */
-UCLASS(BlueprintType, Category = "SDF")
-class UROBOSIM_API USDFPlugin : public UObject
+UCLASS(BlueprintType, Category = "RobotDescription")
+class UROBOSIM_API URDPlugin : public UObject
 {
 	GENERATED_BODY()
 
 public:
-	// Constructor
-	USDFPlugin();
+	URDPlugin();
 
 	UPROPERTY(EditAnywhere, Category = "Plugin")
 	FString Name;

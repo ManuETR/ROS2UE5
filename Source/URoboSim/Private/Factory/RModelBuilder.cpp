@@ -18,7 +18,7 @@ URModelBuilder::~URModelBuilder()
 }
 
 // Load model
-void URModelBuilder::Load(USDFModel* InModelDescription, ARModel* OutModel,FVector InLocation)
+void URModelBuilder::Load(URDModel* InModelDescription, ARModel* OutModel,FVector InLocation)
 {
   ModelDescription = InModelDescription;
   if(OutModel)
@@ -40,7 +40,7 @@ void URModelBuilder::Load(USDFModel* InModelDescription, ARModel* OutModel,FVect
 // Load links
 void URModelBuilder::LoadLinks(FVector InLocation)
 {
-  for(USDFLink* Link : ModelDescription->Links)
+  for(URDLink* Link : ModelDescription->Links)
     {
       URLink* TempLink = LinkFactory->Load(Model, Link,InLocation);
       if(TempLink)
@@ -61,7 +61,7 @@ void URModelBuilder::LoadLinks(FVector InLocation)
 // Load joints
 void URModelBuilder::LoadJoints()
 {
-  for(USDFJoint* Joint : ModelDescription->Joints)
+  for(URDJoint* Joint : ModelDescription->Joints)
     {
       URJoint* TempJoint = JointFactory->Load(Model, Joint);
       if(TempJoint)
@@ -142,7 +142,7 @@ void URModelBuilder::SetConstraintPosition(URJoint* InJoint)
 
 void URModelBuilder::SetupPlugins()
 {
-  for(USDFPlugin* Plugin : ModelDescription->Plugins)
+  for(URDPlugin* Plugin : ModelDescription->Plugins)
     {
       URJoint* Joint = Model->Joints[Plugin->Joint];
 

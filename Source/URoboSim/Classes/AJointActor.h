@@ -4,7 +4,7 @@
 #include "CoreMinimal.h"
 #include "Physics/RJoint.h"
 #include "Factory/RJointFactory.h"
-#include "SDF/SDFJointAxis.h"
+#include "RobotDescription/RDJointAxis.h"
 #include "AJointActor.generated.h"
 
 
@@ -23,7 +23,7 @@ public:
     AActor* ConstraintActor2;
 
   UPROPERTY(EditAnywhere, Category=Constraint)
-  USDFJointAxis* Axis;
+  URDJointAxis* Axis;
 
   // Called every frame
   virtual void Tick(float DeltaTime) override;
@@ -39,7 +39,7 @@ protected:
 
 
   UPROPERTY()
-    USDFJoint* JointDescription;
+    URDJoint* JointDescription;
 
   UPROPERTY(EditAnywhere, Instanced)
     URJointBuilder* JointType;

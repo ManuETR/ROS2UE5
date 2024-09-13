@@ -253,12 +253,12 @@ void URPrismaticConstraintComponent::ConnectToComponents()
     }
 
 }
-void URFixedConstraintComponent::SetPosition(USDFJoint* InJoint)
+void URFixedConstraintComponent::SetPosition(URDJoint* InJoint)
 {
 }
 
 
-void URPrismaticConstraintComponent::SetPosition(USDFJoint* InJoint)
+void URPrismaticConstraintComponent::SetPosition(URDJoint* InJoint)
 {
   Super::SetPosition(InJoint);
 }

@@ -1,23 +1,20 @@
-// Copyright 2018, Institute for Artificial Intelligence - University of Bremen
-// Author: Michael Neumann
-
 #pragma once
 
 #include "CoreMinimal.h"
 #include "UObject/NoExportTypes.h"
-#include "SDFJointAxis.generated.h"
+#include "RDJointAxis.generated.h"
 
 /**
  *
  */
-UCLASS(BlueprintType, Category = "SDF", DefaultToInstanced, hidecategories = Object, editinlinenew)
-class UROBOSIM_API USDFJointAxis : public UObject
+UCLASS(BlueprintType, Category = "RobotDescription", DefaultToInstanced, hidecategories = Object, editinlinenew)
+class UROBOSIM_API URDJointAxis : public UObject
 {
 	GENERATED_BODY()
 
 public:
 
-	USDFJointAxis();
+	URDJointAxis();
 
 	UPROPERTY(EditAnywhere, Category = "Axis")
 	FVector Xyz;
@@ -37,6 +34,6 @@ public:
 	UPROPERTY(EditAnywhere, Category = "Axis|Limit")
 	float Velocity;
 
-	void SetLowerLimitFromSDF(float LowerLimit);
-	void SetUpperLimitFromSDF(float UpperLimit);
+	void SetLowerLimitFrom(float LowerLimit);
+	void SetUpperLimitFrom(float UpperLimit);
 };

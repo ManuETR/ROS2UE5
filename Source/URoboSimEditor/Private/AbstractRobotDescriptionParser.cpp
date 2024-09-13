@@ -5,9 +5,9 @@
 FAbstractRobotDescriptionParser::FAbstractRobotDescriptionParser() :  AssetRegistryModule(FModuleManager::LoadModuleChecked<FAssetRegistryModule>(FName("AssetRegistry"))){}
 
 // Find the FTransform from the relative to Element
-FTransform FAbstractRobotDescriptionParser::FindRelativeTransform(const FString RelativeTo, USDFModel* Model) {
-  int32 IndexJoint = Model->Joints.FindLastByPredicate([RelativeTo](const USDFJoint* Joint) { return Joint->Name == RelativeTo; });
-  int32 IndexLink = Model->Links.FindLastByPredicate([RelativeTo](const USDFLink* Link) { return Link->Name == RelativeTo; });
+FTransform FAbstractRobotDescriptionParser::FindRelativeTransform(const FString RelativeTo, URDModel* Model) {
+  int32 IndexJoint = Model->Joints.FindLastByPredicate([RelativeTo](const URDJoint* Joint) { return Joint->Name == RelativeTo; });
+  int32 IndexLink = Model->Links.FindLastByPredicate([RelativeTo](const URDLink* Link) { return Link->Name == RelativeTo; });
 
   if (IndexJoint != INDEX_NONE) {
     return Model->Joints[IndexJoint]->Pose;
@@ -21,8 +21,8 @@ FTransform FAbstractRobotDescriptionParser::FindRelativeTransform(const FString 
   }
 }
 
-USDFLink* FAbstractRobotDescriptionParser::FindLink(const FString Needle, USDFModel* Model) {
-  int32 Index = Model->Links.FindLastByPredicate([Needle](const USDFLink* Link) { return Link->Name == Needle; });
+URDLink* FAbstractRobotDescriptionParser::FindLink(const FString Needle, URDModel* Model) {
+  int32 Index = Model->Links.FindLastByPredicate([Needle](const URDLink* Link) { return Link->Name == Needle; });
 
   if (Index != INDEX_NONE) {
     return Model->Links[Index];
@@ -33,8 +33,8 @@ USDFLink* FAbstractRobotDescriptionParser::FindLink(const FString Needle, USDFMo
   }
 }
 
-USDFJoint* FAbstractRobotDescriptionParser::FindJoint(const FString Needle, USDFModel* Model) {
-  int32 Index = Model->Joints.FindLastByPredicate([Needle](const USDFJoint* Joint) { return Joint->Name == Needle; });
+URDJoint* FAbstractRobotDescriptionParser::FindJoint(const FString Needle, URDModel* Model) {
+  int32 Index = Model->Joints.FindLastByPredicate([Needle](const URDJoint* Joint) { return Joint->Name == Needle; });
 
   if (Index != INDEX_NONE) {
     return Model->Joints[Index];
@@ -158,14 +158,14 @@ FString FAbstractRobotDescriptionParser::GetMeshAbsolutePath(const FString& Uri)
     }
 }
 
-FName FAbstractRobotDescriptionParser::GenerateMeshName(ESDFType InType, FString InName)
+FName FAbstractRobotDescriptionParser::GenerateMeshName(ERDType InType, FString InName)
 {
   FName MeshName;
-  if (InType == ESDFType::Collision)
+  if (InType == ERDType::Collision)
     {
       MeshName = FName(*(TEXT("SM_") + InName + TEXT("_C")));
     }
-  else if (InType == ESDFType::Visual)
+  else if (InType == ERDType::Visual)
     {
       MeshName = FName(*(TEXT("SM_") + InName + TEXT("_V")));
     }
@@ -185,7 +185,7 @@ FString FAbstractRobotDescriptionParser::GeneratePackageName(FName MeshName)
   return PackageName;
 }
 
-UStaticMesh* FAbstractRobotDescriptionParser::CreateMesh(ESDFType InType, ESDFGeometryType InShape, FString InName, TArray<float> InParameters)
+UStaticMesh* FAbstractRobotDescriptionParser::CreateMesh(ERDType InType, ERDGeometryType InShape, FString InName, TArray<float> InParameters)
 {
   // FString Path = "";
   FName MeshName = GenerateMeshName(InType, InName);
@@ -256,7 +256,7 @@ FString FAbstractRobotDescriptionParser::GetROSPackagePath(const FString& InPack
 }
 
 // Import .fbx meshes from data asset
-UStaticMesh* FAbstractRobotDescriptionParser::ImportMesh(const FString& Uri, ESDFType Type)
+UStaticMesh* FAbstractRobotDescriptionParser::ImportMesh(const FString& Uri, ERDType Type)
 {
   FString MeshAbsolutePath = GetMeshAbsolutePath(Uri);
   if (!FPaths::FileExists(MeshAbsolutePath))
@@ -307,21 +307,21 @@ UStaticMesh* FAbstractRobotDescriptionParser::ImportMesh(const FString& Uri, ESD
 }
 
 
-bool FAbstractRobotDescriptionParser::CreateCollisionForMesh(UStaticMesh* OutMesh, ESDFGeometryType Type)
+bool FAbstractRobotDescriptionParser::CreateCollisionForMesh(UStaticMesh* OutMesh, ERDGeometryType Type)
 {
   switch(Type)
     {
-    case ESDFGeometryType::None :
+    case ERDGeometryType::None :
       return false;
-    case ESDFGeometryType::Mesh :
+    case ERDGeometryType::Mesh :
       return true;
-    case ESDFGeometryType::Box :
+    case ERDGeometryType::Box :
       RStaticMeshUtils::GenerateKDop(OutMesh, ECollisionType::DopX10);
       return true;
-    case ESDFGeometryType::Cylinder :
+    case ERDGeometryType::Cylinder :
       RStaticMeshUtils::GenerateKDop(OutMesh, ECollisionType::DopZ10);
       return true;
-    case ESDFGeometryType::Sphere :
+    case ERDGeometryType::Sphere :
       RStaticMeshUtils::GenerateKDop(OutMesh, ECollisionType::DopX10);
       return true;
     default :
@@ -330,14 +330,14 @@ bool FAbstractRobotDescriptionParser::CreateCollisionForMesh(UStaticMesh* OutMes
     }
 }
 
-USDFCollision* FAbstractRobotDescriptionParser::CreateVirtualCollision(USDFLink* OutLink)
+URDCollision* FAbstractRobotDescriptionParser::CreateVirtualCollision(URDLink* OutLink)
 {
-  USDFCollision* NewCollision = NewObject<USDFCollision>(OutLink, FName(*CurrentLinkName));
+  URDCollision* NewCollision = NewObject<URDCollision>(OutLink, FName(*CurrentLinkName));
   NewCollision->Name = CurrentLinkName;
   NewCollision->Pose = FTransform();
-  NewCollision->Geometry = NewObject<USDFGeometry>(NewCollision);
-  NewCollision->Geometry->Type = ESDFGeometryType::Box;
+  NewCollision->Geometry = NewObject<URDGeometry>(NewCollision);
+  NewCollision->Geometry->Type = ERDGeometryType::Box;
   NewCollision->Geometry->Size = FVector(0.5f, 0.5f, 0.5f);
-  NewCollision->Geometry->Mesh = CreateMesh(ESDFType::Collision, ESDFGeometryType::Box, CurrentLinkName, RStaticMeshUtils::GetGeometryParameter(NewCollision->Geometry));
+  NewCollision->Geometry->Mesh = CreateMesh(ERDType::Collision, ERDGeometryType::Box, CurrentLinkName, RStaticMeshUtils::GetGeometryParameter(NewCollision->Geometry));
   return NewCollision;
 }

@@ -28,24 +28,24 @@ UStaticMesh* RStaticMeshUtils::LoadMesh(UStaticMeshComponent* InOwner, UStaticMe
 }
 
 // void RStaticMeshUtils::CreateBrushBuilder(ABrush* OutBrush,
-//                                           ESDFGeometryType InGeometryTyp,
+//                                           ERDGeometryType InGeometryTyp,
 //                                           TArray<float> InParameters)
 // {
 //     switch(InGeometryTyp)
 //     {
-//         case ESDFGeometryType::None :
+//         case ERDGeometryType::None :
 //             UE_LOG(LogTemp, Error, TEXT("GeometryTyp Not Implemented"));
 //             break;
-//         case ESDFGeometryType::Mesh :
+//         case ERDGeometryType::Mesh :
 //             UE_LOG(LogTemp, Error, TEXT("Mesh Not Implemented"));
 //             break;
-//         case ESDFGeometryType::Box :
+//         case ERDGeometryType::Box :
 //             OutBrush->BrushBuilder = CreateCubeBuilder(OutBrush, InParameters);
 //             break;
-//         case ESDFGeometryType::Cylinder :
+//         case ERDGeometryType::Cylinder :
 //             OutBrush->BrushBuilder = CreateCylinderBuilder(OutBrush, InParameters);
 //             break;
-//         case ESDFGeometryType::Sphere :
+//         case ERDGeometryType::Sphere :
 //             OutBrush->BrushBuilder = CreateSphereBuilder(OutBrush, InParameters);
 //             break;
 //         default :
@@ -216,21 +216,21 @@ void RStaticMeshUtils::GenerateKDop(UStaticMesh* OutMesh, ECollisionType InColli
 }
 
 
-TArray<float> RStaticMeshUtils::GetGeometryParameter(USDFGeometry* InGeometry)
+TArray<float> RStaticMeshUtils::GetGeometryParameter(URDGeometry* InGeometry)
 {
     TArray<float> Parameters;
     switch(InGeometry->Type)
     {
-        case ESDFGeometryType::Box :
+        case ERDGeometryType::Box :
             Parameters.Add(InGeometry->Size.X);
             Parameters.Add(InGeometry->Size.Y);
             Parameters.Add(InGeometry->Size.Z);
             break;
-        case ESDFGeometryType::Cylinder :
+        case ERDGeometryType::Cylinder :
             Parameters.Add(InGeometry->Radius);
             Parameters.Add(InGeometry->Length);
             break;
-        case ESDFGeometryType::Sphere :
+        case ERDGeometryType::Sphere :
             Parameters.Add(InGeometry->Radius);
             break;
         default :
@@ -418,7 +418,7 @@ void RStaticMeshUtils::GenerateCylinder(TArray<FVector>& InVertices, TArray<int3
     }
 }
 
-UStaticMesh* RStaticMeshUtils::CreateStaticMesh(UPackage* InPackage, FString InPackageName, ESDFGeometryType InShape, TArray<float> InParameters)
+UStaticMesh* RStaticMeshUtils::CreateStaticMesh(UPackage* InPackage, FString InPackageName, ERDGeometryType InShape, TArray<float> InParameters)
 {
 
   UStaticMesh* StaticMesh = nullptr;
@@ -428,19 +428,19 @@ UStaticMesh* RStaticMeshUtils::CreateStaticMesh(UPackage* InPackage, FString InP
   TArray<float> TempParameters;
   switch(InShape)
     {
-        case ESDFGeometryType::None :
+        case ERDGeometryType::None :
             UE_LOG(LogTemp, Error, TEXT("GeometryTyp Not Implemented"));
             break;
-        case ESDFGeometryType::Mesh :
+        case ERDGeometryType::Mesh :
             UE_LOG(LogTemp, Error, TEXT("Mesh Not Implemented"));
             break;
-        case ESDFGeometryType::Box :
+        case ERDGeometryType::Box :
           ProcMeshComp = CreateCubePM(InPackage, InParameters);
             break;
-        case ESDFGeometryType::Cylinder :
+        case ERDGeometryType::Cylinder :
           ProcMeshComp = CreateCylinderPM(InPackage, InParameters);
             break;
-        case ESDFGeometryType::Sphere :
+        case ERDGeometryType::Sphere :
           TempParameters.Add(0.5);
           TempParameters.Add(0.5);
           TempParameters.Add(0.5);

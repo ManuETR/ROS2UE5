@@ -1,26 +1,22 @@
-// Copyright 2018, Institute for Artificial Intelligence - University of Bremen
-// Author: Michael Neumann
-
 #pragma once
 
 #include "CoreMinimal.h"
 #include "UObject/NoExportTypes.h"
-#include "SDF/SDFVisual.h"
-#include "SDF/SDFCollision.h"
-#include "SDF/SDFLinkInertial.h"
-#include "SDFLink.generated.h"
+#include "RobotDescription/RDVisual.h"
+#include "RobotDescription/RDCollision.h"
+#include "RobotDescription/RDLinkInertial.h"
+#include "RDLink.generated.h"
 
 /**
  *
  */
-UCLASS(BlueprintType, Category = "SDF")
-class UROBOSIM_API USDFLink : public UObject
+UCLASS(BlueprintType, Category = "RobotDescription")
+class UROBOSIM_API URDLink : public UObject
 {
 	GENERATED_BODY()
 
 public:
-	// Constructor
-	USDFLink();
+	URDLink();
 
 	UPROPERTY(EditAnywhere, Category = "Link")
 	FString Name;
@@ -35,11 +31,11 @@ public:
 	bool bGravity;
 
 	UPROPERTY(EditAnywhere, Category = "Link")
-	USDFLinkInertial* Inertial;
+	URDLinkInertial* Inertial;
 
 	UPROPERTY(EditAnywhere, Category = "Link")
-	TArray<USDFCollision*> Collisions;
+	TArray<URDCollision*> Collisions;
 
 	UPROPERTY(EditAnywhere, Category = "Link")
-	TArray<USDFVisual*> Visuals;
+	TArray<URDVisual*> Visuals;
 };

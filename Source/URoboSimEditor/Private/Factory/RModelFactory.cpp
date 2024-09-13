@@ -13,9 +13,7 @@ URModelFactory::URModelFactory(const FObjectInitializer& ObjectInitializer) : Su
 
 bool URModelFactory::CanCreateActorFrom(const FAssetData & AssetData, FText & OutErrorMsg)
 {
-    // Only designed for SDFData Asset.
-    return AssetData.GetClass() != nullptr && AssetData.GetClass()->IsChildOf( USDFDataAsset::StaticClass());
-    // return AssetData.AssetClass.IsEqual(FName("SDFDataAsset"));
+    return AssetData.GetClass() != nullptr && AssetData.GetClass()->IsChildOf( URDDataAsset::StaticClass());
 }
 
 AActor* URModelFactory::GetDefaultActor(const FAssetData & AssetData)
@@ -25,11 +23,11 @@ AActor* URModelFactory::GetDefaultActor(const FAssetData & AssetData)
 
 AActor* URModelFactory::SpawnActor(UObject* InAsset, ULevel* InLevel, const FTransform& InTransform, const FActorSpawnParameters& InSpawnParams)
 {
-    USDFDataAsset* SDFAsset = CastChecked<USDFDataAsset>(InAsset);
-    if (SDFAsset)
+    URDDataAsset* RDAsset = CastChecked<URDDataAsset>(InAsset);
+    if (RDAsset)
     {
         ARModel* NewRobot = nullptr;
-        for (USDFModel* Model : SDFAsset->Models)
+        for (URDModel* Model : RDAsset->Models)
         {
             AActor* DefaultActor = GetDefaultActor(FAssetData(InAsset));
             if (DefaultActor)
@@ -56,7 +54,7 @@ AActor* URModelFactory::SpawnActor(UObject* InAsset, ULevel* InLevel, const FTra
     }
     else
     {
-        UE_LOG(LogTemp, Error, TEXT("Asset cast to USDFDataAsset failed"));
+        UE_LOG(LogTemp, Error, TEXT("Asset cast to URDDataAsset failed"));
     }
 
     // Creates RRobot Actor.
@@ -66,10 +64,10 @@ AActor* URModelFactory::SpawnActor(UObject* InAsset, ULevel* InLevel, const FTra
 
 void URModelFactory::PostSpawnActor( UObject* Asset, AActor* NewActor )
 {
-  USDFDataAsset* SDFAsset = CastChecked<USDFDataAsset>(Asset);
-  if(SDFAsset)
+  URDDataAsset* RDAsset = CastChecked<URDDataAsset>(Asset);
+  if(RDAsset)
     {
-      FActorLabelUtilities::SetActorLabelUnique(NewActor, SDFAsset->Models[0]->Name);
+      FActorLabelUtilities::SetActorLabelUnique(NewActor, RDAsset->Models[0]->Name);
     }
 }
 

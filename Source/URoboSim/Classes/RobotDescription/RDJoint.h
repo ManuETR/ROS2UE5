@@ -1,24 +1,20 @@
-// Copyright 2018, Institute for Artificial Intelligence - University of Bremen
-// Author: Michael Neumann
-
 #pragma once
 
 #include "CoreMinimal.h"
 #include "UObject/NoExportTypes.h"
-#include "SDF/SDFJointAxis.h"
-#include "SDFJoint.generated.h"
+#include "RobotDescription/RDJointAxis.h"
+#include "RDJoint.generated.h"
 
 /**
  *
  */
-UCLASS(BlueprintType, Category = "SDF", DefaultToInstanced, hidecategories = Object, editinlinenew)
-class UROBOSIM_API USDFJoint : public UObject
+UCLASS(BlueprintType, Category = "RobotDescription", DefaultToInstanced, hidecategories = Object, editinlinenew)
+class UROBOSIM_API URDJoint : public UObject
 {
 	GENERATED_BODY()
 
 public:
-	//Constructor
-	USDFJoint();
+	URDJoint();
 
 	UPROPERTY(EditAnywhere, Category = "Joint")
 	FString Name;
@@ -36,5 +32,5 @@ public:
 	FString Child;
 
 	UPROPERTY(EditAnywhere, Category = "Joint")
-	USDFJointAxis* Axis;
+	URDJointAxis* Axis;
 };

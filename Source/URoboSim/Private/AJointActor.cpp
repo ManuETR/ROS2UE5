@@ -10,8 +10,8 @@ AJointActor::AJointActor()
 {
   // Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
   PrimaryActorTick.bCanEverTick = true;
-  JointDescription = CreateDefaultSubobject<USDFJoint>(FName(*(GetName() + TEXT("_JointDescription"))));
-  Axis = CreateDefaultSubobject<USDFJointAxis>(TEXT("Axis"));
+  JointDescription = CreateDefaultSubobject<URDJoint>(FName(*(GetName() + TEXT("_JointDescription"))));
+  Axis = CreateDefaultSubobject<URDJointAxis>(TEXT("Axis"));
 }
 
 void AJointActor::BeginPlay()

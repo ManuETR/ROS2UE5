@@ -1,6 +1,6 @@
 #include "Factory/RJointFactory.h"
 
-URJoint* URJointFactory::Load(UObject* InOuter, USDFJoint* InJointDescription)
+URJoint* URJointFactory::Load(UObject* InOuter, URDJoint* InJointDescription)
 {
   if(!InOuter && !InJointDescription)
     {
@@ -18,7 +18,7 @@ URJoint* URJointFactory::Load(UObject* InOuter, USDFJoint* InJointDescription)
 
 }
 
-URJointBuilder* URJointFactory::CreateBuilder(USDFJoint* InJointDescription)
+URJointBuilder* URJointFactory::CreateBuilder(URDJoint* InJointDescription)
 {
   if(InJointDescription->Type.Equals("revolute"))
     {
@@ -44,7 +44,7 @@ URJointBuilder* URJointFactory::CreateBuilder(USDFJoint* InJointDescription)
   }
 }
 
-void URJointBuilder::Init(UObject* InOuter, USDFJoint* InJointDescription)
+void URJointBuilder::Init(UObject* InOuter, URDJoint* InJointDescription)
 {
   Outer = InOuter;
   JointDescription = InJointDescription;
@@ -183,7 +183,7 @@ void URRevoluteJointBuilder::SetAxis()
   Joint->Constraint->Limit  =  0.5*FMath::Abs(JointDescription->Axis->Upper - JointDescription->Axis->Lower) ;
   EAngularConstraintMotion AngularConstraintMotion = EAngularConstraintMotion::ACM_Limited;
 
-  //Because the limit is symetrical the Rotation center has to be offseted so that upper and lower limit corespond to the sdf values
+  //Because the limit is symetrical the Rotation center has to be offseted so that upper and lower limit corespond to the robot description values
   CalculateRotationOffset();
 
   // RefAxis = RefAxis;

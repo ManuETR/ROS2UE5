@@ -3,12 +3,12 @@
 #pragma once
 
 // #include "UnrealEd.h"
-#include "SDF/SDFDataAsset.h"
+#include "RobotDescription/RDDataAsset.h"
 #include "ActorFactories/ActorFactory.h"
 #include "RControllerFactory.generated.h"
 
 /**
- * Own ActorFactory which creates a robot from SDFData Asset.
+ * Own ActorFactory which creates a robot from URDDataAsset.
  */
 UCLASS()
 class UROBOSIMEDITOR_API URControllerFactory : public UActorFactory

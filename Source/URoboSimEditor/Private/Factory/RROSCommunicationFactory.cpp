@@ -56,7 +56,7 @@ AActor* URROSCommunicationFactory::SpawnActor(UObject* InAsset, ULevel* InLevel,
         }
         else
         {
-            UE_LOG(LogTemp, Error, TEXT("Asset cast to USDFDataAsset failed"));
+            UE_LOG(LogTemp, Error, TEXT("Asset cast to URDDataAsset failed"));
         }
     }
     else

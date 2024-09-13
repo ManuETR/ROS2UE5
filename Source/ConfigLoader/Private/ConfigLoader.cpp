@@ -4,7 +4,7 @@
 #include "FileHelpers.h"
 #include "URoboSim/Classes/Physics/RModel.h"
 #include "URoboSim/Classes/Factory/RModelBuilder.h"
-#include "URoboSim/Classes/SDF/SDFDataAsset.h"
+#include "URoboSim/Classes/RobotDescription/RDDataAsset.h"
 #include "URoboSim/Classes/ROSCommunication/Subscriber/JointStateSubscriber.h"
 #include "URoboSim/Classes/ROSCommunication/Subscriber/RSubscriber.h"
 #include "URoboSim/Classes/ROSCommunication/RROSCommunicationComponent.h"
@@ -88,7 +88,7 @@ void FConfigLoaderModule::LoadRobotsConfig(TArray<TSharedPtr<FJsonValue>> Robots
 
     if (RobotConfig->HasField("robot")) {
       FString Path = "/Game/" + RobotConfig->GetStringField("robot") + "." + RobotConfig->GetStringField("robot");
-      USDFDataAsset* DataAsset = Cast<USDFDataAsset>(StaticLoadObject(USDFDataAsset::StaticClass(), nullptr, *Path));
+      URDDataAsset* DataAsset = Cast<URDDataAsset>(StaticLoadObject(URDDataAsset::StaticClass(), nullptr, *Path));
 
       UE_LOG(LogTemp, Log, TEXT("[Config] Loading robot from %s"), *Path);
 

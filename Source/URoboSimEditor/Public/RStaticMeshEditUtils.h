@@ -8,7 +8,7 @@
 // #include "Editor/UnrealEd/Classes/Builders/CylinderBuilder.h"
 // #include "Runtime/Engine/Classes/Engine/Brush.h"
 // #include "Runtime/Engine/Classes/Engine/StaticMesh.h"
-#include "SDF/SDFDataAsset.h"
+#include "RobotDescription/RDDataAsset.h"
 #include "CustomMeshComponent.h"
 
 
@@ -51,7 +51,7 @@ class UROBOSIMEDITOR_API RStaticMeshUtils
 {
 public:
 
-    // static UStaticMesh* CreateStaticMesh(AActor* InOwner, ESDFGeometryType InGeometryTyp, TArray<float> InParameters);
+    // static UStaticMesh* CreateStaticMesh(AActor* InOwner, ERDGeometryType InGeometryTyp, TArray<float> InParameters);
 	template <typename T>
     static UStaticMesh* CreateStaticMesh(UStaticMeshComponent* InOwner, T* InVisual);
 
@@ -62,9 +62,9 @@ public:
 	static void CleanUp(FString InName);
     static void GenerateKDop(UStaticMesh* OutMesh, ECollisionType InCollisionType);
     static void GenerateKDop(UStaticMesh* OutMesh, const FVector* InDirections, uint32 InNumInDirections);
-    static TArray<float> GetGeometryParameter(USDFGeometry* InGeometry);
+    static TArray<float> GetGeometryParameter(URDGeometry* InGeometry);
 
-    static UStaticMesh* CreateStaticMesh(UPackage* InPackage, FString InPackageName, ESDFGeometryType InShape, TArray<float> InParameters);
+    static UStaticMesh* CreateStaticMesh(UPackage* InPackage, FString InPackageName, ERDGeometryType InShape, TArray<float> InParameters);
 protected:
 
     static UProceduralMeshComponent* CreateCubePM(UObject* InOwner, TArray<float> InParameter);

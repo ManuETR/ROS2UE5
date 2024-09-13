@@ -5,7 +5,7 @@
 
 #include "CoreMinimal.h"
 #include "Physics/RJoint.h"
-#include "SDF/SDFJoint.h"
+#include "RobotDescription/RDJoint.h"
 #include "RJointFactory.generated.h"
 
 UCLASS(Blueprintable, DefaultToInstanced, hidecategories = Object, editinlinenew)
@@ -15,7 +15,7 @@ class UROBOSIM_API URJointBuilder : public UObject
 
 public:
 
-  virtual void Init(UObject* InOuter, USDFJoint* InJointDescription);
+  virtual void Init(UObject* InOuter, URDJoint* InJointDescription);
   virtual URJoint* NewJoint();
 
 protected:
@@ -31,7 +31,7 @@ protected:
     UObject* Outer;
 
   UPROPERTY()
-    USDFJoint* JointDescription;
+    URDJoint* JointDescription;
 
   UPROPERTY()
     URJoint* Joint;
@@ -76,10 +76,10 @@ class UROBOSIM_API URJointFactory : public UObject
 
 public:
 
-    URJoint* Load(UObject* InOuter, USDFJoint* InJointDescription);
+    URJoint* Load(UObject* InOuter, URDJoint* InJointDescription);
 
  protected:
-  URJointBuilder* CreateBuilder(USDFJoint* InJointDescription);
+  URJointBuilder* CreateBuilder(URDJoint* InJointDescription);
 
   UPROPERTY()
     URJointBuilder* JointBuilder;

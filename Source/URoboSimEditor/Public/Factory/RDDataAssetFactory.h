@@ -6,22 +6,22 @@
 #include "CoreMinimal.h"
 #include "UObject/ObjectMacros.h"
 #include "Factories/Factory.h"
-#include "SDFDataAssetFactory.generated.h"
+#include "RDDataAssetFactory.generated.h"
 
 // Forward declaration
-class USDFDataAsset;
+class URDDataAsset;
 
 /**
  *
  */
 UCLASS(hidecategories = Object)
-class UROBOSIMEDITOR_API USDFDataAssetFactory : public UFactory/*, public FReimportHandler*/
+class UROBOSIMEDITOR_API URDDataAssetFactory : public UFactory/*, public FReimportHandler*/
 {
 	GENERATED_BODY()
 
 public:
 	// Constructor
-	USDFDataAssetFactory(const FObjectInitializer& ObjectInitializer);
+	URDDataAssetFactory(const FObjectInitializer& ObjectInitializer);
 
 private:
 	//////// Begin UFactory Interface

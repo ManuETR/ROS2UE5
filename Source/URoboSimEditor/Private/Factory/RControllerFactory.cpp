@@ -61,7 +61,7 @@ AActor* URControllerFactory::SpawnActor(UObject* InAsset, ULevel* InLevel, const
         }
         else
         {
-            UE_LOG(LogRControllerFactory, Error, TEXT("Casting Asset to USDFDataAsset failed"))
+            UE_LOG(LogRControllerFactory, Error, TEXT("Casting Asset to URDDataAsset failed"))
         }
     }
     bDrag = !bDrag;
