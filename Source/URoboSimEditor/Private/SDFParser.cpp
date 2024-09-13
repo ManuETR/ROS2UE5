@@ -1,6 +1,3 @@
-// Copyright 2018, Institute for Artificial Intelligence - University of Bremen
-// Author: Michael Neumann
-
 #include "SDFParser.h"
 #include "Conversions.h"
 // #include "Paths.h"
@@ -10,20 +7,20 @@
 #include "RStaticMeshEditUtils.h"
 
 // Default constructor
-FSDFParser::FSDFParser() :  AssetRegistryModule(FModuleManager::LoadModuleChecked<FAssetRegistryModule>(FName("AssetRegistry")))
+FSDFParser::FSDFParser()
 {
     this->XmlFile=nullptr;
-    this->bSDFLoaded=false;
+    this->bLoaded=false;
     GetROSPackagePaths();
 }
 
 // Constructor with load from path
-FSDFParser::FSDFParser(const FString& InFilename) : AssetRegistryModule(FModuleManager::LoadModuleChecked<FAssetRegistryModule>(FName("AssetRegistry")))
+FSDFParser::FSDFParser(const FString& InFilename)
 {
   this->XmlFile=nullptr;
-  this->bSDFLoaded=false;
+  this->bLoaded=false;
   GetROSPackagePaths();
-  LoadSDF(InFilename);
+  Load(InFilename);
 }
 
 // Destructor
@@ -33,7 +30,7 @@ FSDFParser::~FSDFParser()
 }
 
 // Load sdf from file
-bool FSDFParser::LoadSDF(const FString& InFilename)
+bool FSDFParser::Load(const FString& InFilename)
 {
   AssetRegistryModule = FModuleManager::LoadModuleChecked<FAssetRegistryModule>(FName("AssetRegistry"));
   // Make sure parser is clean
@@ -43,7 +40,7 @@ bool FSDFParser::LoadSDF(const FString& InFilename)
   XmlFile = new FXmlFile(InFilename);
 
   // Check for valid sdf
-  bSDFLoaded = IsValidSDF();
+  bLoaded = IsValid();
 
   // Set the model directory path
   SetDirectoryPath(InFilename);
@@ -54,7 +51,7 @@ bool FSDFParser::LoadSDF(const FString& InFilename)
   // If options are to be offered before loading.
   FbxFactory->EnableShowOption();
 
-  return bSDFLoaded;
+  return bLoaded;
 }
 
 // Clear parser
@@ -66,9 +63,9 @@ void FSDFParser::Clear()
       delete XmlFile;
       XmlFile = nullptr;
     }
-  if (bSDFLoaded)
+  if (bLoaded)
     {
-      bSDFLoaded = false;
+      bLoaded = false;
       DataAsset = nullptr;
       FbxFactory = nullptr;
       DirPath = TEXT("");
@@ -78,7 +75,7 @@ void FSDFParser::Clear()
 // Create data asset and parse sdf data into it
 USDFDataAsset* FSDFParser::ParseToNewDataAsset(UObject* InParent, FName InName, EObjectFlags InFlags)
 {
-  if (!bSDFLoaded)
+  if (!bLoaded)
     {
       return nullptr;
     }
@@ -87,13 +84,13 @@ USDFDataAsset* FSDFParser::ParseToNewDataAsset(UObject* InParent, FName InName, 
   DataAsset = NewObject<USDFDataAsset>(InParent, InName, InFlags);
 
   // Parse sdf data and fill the data asset
-  ParseSDF();
+  Parse();
 
   return DataAsset;
 }
 
 // Check if sdf data is valid
-bool FSDFParser::IsValidSDF()
+bool FSDFParser::IsValid()
 {
   if (XmlFile == nullptr)
     {
@@ -111,7 +108,7 @@ bool FSDFParser::IsValidSDF()
 }
 
 // Parse <sdf> node
-void FSDFParser::ParseSDF()
+void FSDFParser::Parse()
 {
   // Get "version" from node attribute
   const FString SDFVersion = XmlFile->GetRootNode()->GetAttribute(TEXT("version"));
@@ -183,10 +180,6 @@ void FSDFParser::ParseModel(const FXmlNode* InNode)
         {
           NewModel->Pose = PoseContentToFTransform(ChildNode->GetContent());
         }
-      else if (ChildNode->GetTag().Equals(TEXT("plugin")))
-        {
-          ParsePlugin(ChildNode, NewModel);
-        }
       else
         {
           UE_LOG(LogTemp, Warning, TEXT("[%s][%d] <model> child <%s> not supported, ignored.."),
@@ -199,37 +192,157 @@ void FSDFParser::ParseModel(const FXmlNode* InNode)
   DataAsset->Models.Add(NewModel);
 }
 
-void FSDFParser::ParsePlugin(const FXmlNode* InNode, USDFModel*& OutModel)
+// Parse <joint> node
+void FSDFParser::ParseJoint(const FXmlNode* InNode, USDFModel*& OutModel)
 {
-  USDFPlugin* NewPlugin = nullptr;
+  // Pointer to the new joint
+  USDFJoint* NewJoint = nullptr;
+
   // Get "name" from node attribute
   const FString Name = InNode->GetAttribute(TEXT("name"));
-  NewPlugin = NewObject<USDFPlugin>(OutModel, FName(*Name));
-  NewPlugin->Name = Name;
+  if (!Name.IsEmpty())
+    {
+      NewJoint = NewObject<USDFJoint>(OutModel, FName(*Name));
+      NewJoint->Name = Name;
+    }
+  else
+    {
+      UE_LOG(LogTemp, Warning, TEXT("[%s][%d] <joint> has no \"name\" attribute, added a default value.."),
+             *FString(__FUNCTION__), __LINE__);
+      NewJoint = NewObject<USDFJoint>(OutModel/*, FName(TEXT("__default__"))*/);
+      NewJoint->Name = TEXT("__default__");
+    }
+
+  // Get "type" from node attribute
+  const FString Type = InNode->GetAttribute(TEXT("type"));
+  if (!Name.IsEmpty())
+    {
+      NewJoint->Type = Type;
+    }
+  else
+    {
+      UE_LOG(LogTemp, Warning, TEXT("[%s][%d] <joint> has no \"type\" attribute, added a default value.."),
+             *FString(__FUNCTION__), __LINE__);
+      NewJoint->Name = TEXT("__default__");
+    }
+
+  // Iterate <joint> child nodes
   for (const auto& ChildNode : InNode->GetChildrenNodes())
     {
+      if (ChildNode->GetTag().Equals(TEXT("parent")))
+        {
+          NewJoint->Parent = ChildNode->GetContent();
+        }
+      else if (ChildNode->GetTag().Equals(TEXT("child")))
+        {
+          NewJoint->Child = ChildNode->GetContent();
+        }
+      else if (ChildNode->GetTag().Equals(TEXT("pose")))
+        {
+          NewJoint->Pose = PoseContentToFTransform(ChildNode->GetContent());
+          const FString RelativeTo = ChildNode->GetAttribute(TEXT("relative_to"));
+          if (!RelativeTo.IsEmpty()) {
+            FTransform Relative = FindRelativeTransform(RelativeTo, OutModel);
 
-      if (ChildNode->GetTag().Equals(TEXT("joint")))
-        {
-          NewPlugin->Joint = ChildNode->GetContent();
+            FTransform::Multiply(&NewJoint->Pose, &NewJoint->Pose, &Relative);
+          }
         }
-      else if (ChildNode->GetTag().Equals(TEXT("mimicJoint")))
+      else if (ChildNode->GetTag().Equals(TEXT("axis")))
         {
-          NewPlugin->MimicJoint = ChildNode->GetContent();
-        }
-      else if (ChildNode->GetTag().Equals(TEXT("multiplier")))
-        {
-          NewPlugin->Multiplier = FCString::Atof(*ChildNode->GetContent());
+          ParseJointAxis(ChildNode, NewJoint);
         }
       else
         {
-          UE_LOG(LogTemp, Warning, TEXT("[%s][%d] <link> child <%s> not supported, ignored.."),
+          UE_LOG(LogTemp, Warning, TEXT("[%s][%d] <joint> child <%s> not supported, ignored.."),
                  *FString(__FUNCTION__), __LINE__, *ChildNode->GetTag());
           continue;
         }
-      OutModel->Plugins.Add(NewPlugin);
     }
 
+  // Add link to the data asset
+  OutModel->Joints.Add(NewJoint);
+}
+
+// Parse <joint> <axis> node
+void FSDFParser::ParseJointAxis(const FXmlNode* InNode, USDFJoint*& OutJoint)
+{
+  // Iterate <joint> <axis> child nodes
+  for (const auto& ChildNode : InNode->GetChildrenNodes())
+    {
+      if (ChildNode->GetTag().Equals(TEXT("xyz")))
+        {
+          OutJoint->Axis->Xyz = XyzToFVector(ChildNode->GetContent());
+        }
+      else if (ChildNode->GetTag().Equals(TEXT("use_parent_model_frame")))
+        {
+          OutJoint->Axis->bUseParentModelFrame = ChildNode->GetContent().ToBool();
+        }
+      else if (ChildNode->GetTag().Equals(TEXT("limit")))
+        {
+          ParseJointAxisLimit(ChildNode, OutJoint);
+        }
+      else
+        {
+          UE_LOG(LogTemp, Warning, TEXT("[%s][%d] <joint> <axis> child <%s> not supported, ignored.."),
+                 *FString(__FUNCTION__), __LINE__, *ChildNode->GetTag());
+          continue;
+        }
+    }
+}
+
+// Parse <joint> <axis> <limit> node
+void FSDFParser::ParseJointAxisLimit(const FXmlNode* InNode, USDFJoint*& OutJoint)
+{
+  // Iterate <joint> <axis> <limit> child nodes
+  for (const auto& ChildNode : InNode->GetChildrenNodes())
+    {
+      if (ChildNode->GetTag().Equals(TEXT("lower")))
+        {
+          OutJoint->Axis->SetLowerLimitFromSDF(FCString::Atof(*ChildNode->GetContent()));
+
+        }
+      else if (ChildNode->GetTag().Equals(TEXT("upper")))
+        {
+          OutJoint->Axis->SetUpperLimitFromSDF(FCString::Atof(*ChildNode->GetContent()));
+        }
+      else if (ChildNode->GetTag().Equals(TEXT("effort")))
+        {
+          OutJoint->Axis->Effort = FCString::Atof(*ChildNode->GetContent());
+        }
+      else if (ChildNode->GetTag().Equals(TEXT("velocity")))
+        {
+          OutJoint->Axis->Velocity = FCString::Atof(*ChildNode->GetContent());
+        }
+      else
+        {
+          UE_LOG(LogTemp, Warning, TEXT("[%s][%d] <joint> <axis> <limit> child <%s> not supported, ignored.."),
+                 *FString(__FUNCTION__), __LINE__, *ChildNode->GetTag());
+          continue;
+        }
+    }
+}
+
+// Parse <link> <inertial> node
+void FSDFParser::ParseLinkInertial(const FXmlNode* InNode, USDFLink*& OutLink)
+{
+  // Iterate <link> <inertial> child nodes
+  for (const auto& ChildNode : InNode->GetChildrenNodes())
+    {
+      if (ChildNode->GetTag().Equals(TEXT("mass")))
+        {
+          OutLink->Inertial->Mass = FCString::Atof(*ChildNode->GetContent());
+        }
+      else if (ChildNode->GetTag().Equals(TEXT("pose")))
+        {
+          OutLink->Inertial->Pose = PoseContentToFTransform(ChildNode->GetContent());
+        }
+      else
+        {
+          UE_LOG(LogTemp, Warning, TEXT("[%s][%d] <inertial> child <%s> not supported, ignored.."),
+                 *FString(__FUNCTION__), __LINE__, *ChildNode->GetTag());
+          continue;
+        }
+    }
 }
 
 // Parse <link> node
@@ -412,6 +525,110 @@ void FSDFParser::ParseCollision(const FXmlNode* InNode, USDFLink*& OutLink)
   OutLink->Collisions.Add(NewCollision);
 }
 
+// Parse <geometry> <box> node
+void FSDFParser::ParseGeometryBox(const FXmlNode* InNode, USDFGeometry*& OutGeometry)
+{
+  // Set geometry type
+  OutGeometry->Type = ESDFGeometryType::Box;
+
+  // Iterate <geometry> <box> child nodes
+  for (const auto& ChildNode : InNode->GetChildrenNodes())
+    {
+      if (ChildNode->GetTag().Equals(TEXT("size")))
+        {
+          OutGeometry->Size = SizeToFVector(ChildNode->GetContent());
+        }
+      else
+        {
+          UE_LOG(LogTemp, Warning, TEXT("[%s][%d] <geometry> <box> child <%s> not supported, ignored.."),
+                 *FString(__FUNCTION__), __LINE__, *ChildNode->GetTag());
+          continue;
+        }
+    }
+}
+
+// Parse <geometry> <cylinder> node
+void FSDFParser::ParseGeometryCylinder(const FXmlNode* InNode, USDFGeometry*& OutGeometry)
+{
+  // Set geometry type
+  OutGeometry->Type = ESDFGeometryType::Cylinder;
+
+  // Iterate <geometry> <cylinder> child nodes
+  for (const auto& ChildNode : InNode->GetChildrenNodes())
+    {
+      if (ChildNode->GetTag().Equals(TEXT("radius")))
+        {
+          OutGeometry->Radius = FConversions::MToCm(
+                                                    FCString::Atof(*ChildNode->GetContent()));
+        }
+      else if (ChildNode->GetTag().Equals(TEXT("length")))
+        {
+          OutGeometry->Length = FConversions::MToCm(
+                                                    FCString::Atof(*ChildNode->GetContent()));
+        }
+      else
+        {
+          UE_LOG(LogTemp, Warning, TEXT("[%s][%d] <geometry> <cylinder> child <%s> not supported, ignored.."),
+                 *FString(__FUNCTION__), __LINE__, *ChildNode->GetTag());
+          continue;
+        }
+    }
+}
+
+// Parse <geometry> <sphere> node
+void FSDFParser::ParseGeometrySphere(const FXmlNode* InNode, USDFGeometry*& OutGeometry)
+{
+  // Set geometry type
+  OutGeometry->Type = ESDFGeometryType::Sphere;
+
+  // Iterate <geometry> <sphere> child nodes
+  for (const auto& ChildNode : InNode->GetChildrenNodes())
+    {
+      if (ChildNode->GetTag().Equals(TEXT("radius")))
+        {
+          OutGeometry->Radius = FConversions::MToCm(
+                                                    FCString::Atof(*ChildNode->GetContent()));
+        }
+      else
+        {
+          UE_LOG(LogTemp, Warning, TEXT("[%s][%d] <geometry> <sphere> child <%s> not supported, ignored.."),
+                 *FString(__FUNCTION__), __LINE__, *ChildNode->GetTag());
+          continue;
+        }
+    }
+}
+
+// Parse <geometry> node
+void FSDFParser::ParseGeometry(const FXmlNode* InNode, USDFGeometry*& OutGeometry, ESDFType Type)
+{
+  // Iterate <geometry> child nodes
+  for (const auto& ChildNode : InNode->GetChildrenNodes())
+    {
+      if (ChildNode->GetTag().Equals(TEXT("mesh")))
+        {
+          ParseGeometryMesh(ChildNode, OutGeometry, Type);
+        }
+      else if (ChildNode->GetTag().Equals(TEXT("box")))
+        {
+          ParseGeometryBox(ChildNode, OutGeometry);
+        }
+      else if (ChildNode->GetTag().Equals(TEXT("cylinder")))
+        {
+          ParseGeometryCylinder(ChildNode, OutGeometry);
+        }
+      else if (ChildNode->GetTag().Equals(TEXT("sphere")))
+        {
+          ParseGeometrySphere(ChildNode, OutGeometry);
+        }
+      else
+        {
+          UE_LOG(LogTemp, Warning, TEXT("[%s][%d] <geometry> child <%s> not supported, ignored.."),
+                 *FString(__FUNCTION__), __LINE__, *ChildNode->GetTag());
+          continue;
+        }
+    }
+}
+
 // Parse <geometry> <mesh> node
 void FSDFParser::ParseGeometryMesh(const FXmlNode* InNode, USDFGeometry*& OutGeometry, ESDFType Type)
 {
@@ -434,234 +651,4 @@ void FSDFParser::ParseGeometryMesh(const FXmlNode* InNode, USDFGeometry*& OutGeo
           continue;
         }
     }
-}
-/* Begin helper functions */
-// Fix file path
-void FSDFParser::SetDirectoryPath(const FString& InFilename)
-{
-  // Replace back slash to forward slash in the path
-  // D:\Models\MyModelName\model.sdf --> D:/Models/MyModelName/model.sdf
-  DirPath = InFilename.Replace(TEXT("\\"), TEXT("/"));
-
-  // Remove filename from path --> D:/Models/MyModelName
-  DirPath = FPaths::GetPath(DirPath);
-
-  // TODO rather cut uppermost from URI
-  // One dir up --> D:/Models
-  DirPath = FPaths::Combine(DirPath, TEXT("/../"));
-  FPaths::CollapseRelativeDirectories(DirPath);
-}
-
-// Get mesh absolute path
-FString FSDFParser::GetMeshAbsolutePath(const FString& Uri)
-{
-  // Create mesh relative path, add .fbx extension
-  FString MeshRelativePath = Uri;
-  if (!MeshRelativePath.EndsWith(".fbx"))
-    {
-      MeshRelativePath = FPaths::ChangeExtension(MeshRelativePath, TEXT("fbx"));
-    }
-  // Remove package name prefix
-  MeshRelativePath.RemoveFromStart(TEXT("model://"));
-  TArray<FString> PackageParts;
-  MeshRelativePath.ParseIntoArray(PackageParts, TEXT("/"));
-  FString PackageName = PackageParts[0];
-
-
-  FString PackagePath = GetROSPackagePath(PackageName);
-
-  if(PackagePath.IsEmpty())
-    {
-      // Create mesh absolute path
-      return DirPath + MeshRelativePath;
-    }
-  else
-    {
-      UE_LOG(LogTemp, Error, TEXT("MeshPath %s"), *(PackagePath + MeshRelativePath));
-      return PackagePath + MeshRelativePath;
-    }
-}
-
-FName FSDFParser::GenerateMeshName(ESDFType InType, FString InName)
-{
-  FName MeshName;
-  if (InType == ESDFType::Collision)
-    {
-      MeshName = FName(*(TEXT("SM_") + InName + TEXT("_C")));
-    }
-  else if (InType == ESDFType::Visual)
-    {
-      MeshName = FName(*(TEXT("SM_") + InName + TEXT("_V")));
-    }
-  return MeshName;
-}
-
-FString FSDFParser::GeneratePackageName(FName MeshName)
-{
-  FString PackageName = "";
-  FString Reason = "";
-  FString NewDir = DataAsset->GetOuter()->GetPathName() + "/" + CurrentLinkName;
-  if(!FPackageName::TryConvertFilenameToLongPackageName(NewDir + "/" + MeshName.ToString() , PackageName, &Reason))
-    {
-      UE_LOG(LogTemp, Error, TEXT("Packacke name invlaide because : %s"), *Reason);
-    }
-  AssetRegistryModule.Get().AddPath(NewDir);
-  return PackageName;
-}
-
-UStaticMesh* FSDFParser::CreateMesh(ESDFType InType, ESDFGeometryType InShape, FString InName, TArray<float> InParameters)
-{
-  // FString Path = "";
-  FName MeshName = GenerateMeshName(InType, InName);
-  FString PackageName = GeneratePackageName(MeshName);
-
-
-  //UPackage* Pkg = CreatePackage(NULL, *PackageName);
-  UPackage* Pkg = CreatePackage(*PackageName);
-  UStaticMesh* Mesh = RStaticMeshUtils::CreateStaticMesh(Pkg, PackageName, InShape, InParameters);
-  CreateCollisionForMesh(Mesh, InShape);
-  return Mesh;
-}
-
-void FSDFParser::GetROSPackagePaths()
-{
-  FString TempPath = FPlatformMisc::GetEnvironmentVariable(TEXT("ROS_PACKAGE_PATH"));
-  if (!TempPath.IsEmpty())
-    {
-      ROSPackagePaths.Empty();
-      TArray<FString> TempPathArray;
-      TempPath.ParseIntoArray(TempPathArray, TEXT(":"));
-      for(auto & Path : TempPathArray)
-        {
-          TArray<FString> TempPackageParts;
-          Path.ParseIntoArray(TempPackageParts, TEXT("/"));
-          FString PackageName = TempPackageParts.Top();
-          if(!Path.Contains("opt"))
-            {
-              Path.RemoveFromEnd(PackageName);
-              ROSPackagePaths.Add(PackageName, Path);
-            }
-          else
-            {
-              UE_LOG(LogTemp, Error, TEXT("ROS default path %s"), *Path);
-              ROSPackagePaths.Add(TEXT("ROS"), Path + TEXT("/"));
-            }
-        }
-    }
-  else
-    {
-      UE_LOG(LogTemp, Error, TEXT("ROS_PACKAGE_PATH is empty or not set"));
-    }
-}
-
-FString FSDFParser::GetROSPackagePath(const FString& InPackageName)
-{
-  if(ROSPackagePaths.Contains(InPackageName))
-    {
-      return ROSPackagePaths[InPackageName];
-    }
-  else
-    {
-      if(ROSPackagePaths.Contains(TEXT("ROS")))
-        {
-          FString TestPath = FPaths::Combine(ROSPackagePaths[TEXT("ROS")],  InPackageName);
-          if(FPaths::DirectoryExists(TestPath))
-            {
-              return ROSPackagePaths[TEXT("ROS")];
-            }
-          else
-            {
-              UE_LOG(LogTemp, Error, TEXT("[%s] testpath %s does not exist"), *FString(__FUNCTION__), *InPackageName);
-            }
-        }
-      UE_LOG(LogTemp, Error, TEXT("[%s] ROSPackage %s not found"), *FString(__FUNCTION__), *InPackageName);
-      return FString();
-    }
-}
-
-// Import .fbx meshes from data asset
-UStaticMesh* FSDFParser::ImportMesh(const FString& Uri, ESDFType Type)
-{
-  FString MeshAbsolutePath = GetMeshAbsolutePath(Uri);
-  if (!FPaths::FileExists(MeshAbsolutePath))
-    {
-      UE_LOG(LogTemp, Error, TEXT("[%s] Could not find %s"), *FString(__FUNCTION__), *MeshAbsolutePath);
-      return nullptr;
-    }
-
-  // Get mesh name
-
-  FString MeshNameTemp = FPaths::GetBaseFilename(MeshAbsolutePath);
-  FName MeshName = GenerateMeshName(Type, MeshNameTemp);
-
-  // Import mesh
-  bool bOperationCancelled = false;
-
-  FString PackageName = GeneratePackageName(MeshName);
-  //UPackage* Pkg = CreatePackage(NULL, *PackageName);
-  UPackage* Pkg = CreatePackage(*PackageName);
-  UObject* MeshObj = FbxFactory->ImportObject(
-                                              UStaticMesh::StaticClass(), Pkg, MeshName, RF_Transactional | RF_Standalone | RF_Public, MeshAbsolutePath, nullptr, bOperationCancelled);
-
-  // If import has been cancelled
-  if (bOperationCancelled)
-    {
-      return nullptr;
-    }
-
-  FAssetRegistryModule::AssetCreated(MeshObj);
-
-  // Mark outer dirty
-  if (DataAsset->GetOuter())
-    {
-      DataAsset->GetOuter()->MarkPackageDirty();
-    }
-  else
-    {
-      DataAsset->MarkPackageDirty();
-    }
-  // Mark mesh dirty
-  if (MeshObj)
-    {
-      MeshObj->MarkPackageDirty();
-    }
-
-  // Return the cast result
-  return Cast<UStaticMesh>(MeshObj);
-}
-
-
-bool FSDFParser::CreateCollisionForMesh(UStaticMesh* OutMesh, ESDFGeometryType Type)
-{
-  switch(Type)
-    {
-    case ESDFGeometryType::None :
-      return false;
-    case ESDFGeometryType::Mesh :
-      return true;
-    case ESDFGeometryType::Box :
-      RStaticMeshUtils::GenerateKDop(OutMesh, ECollisionType::DopX10);
-      return true;
-    case ESDFGeometryType::Cylinder :
-      RStaticMeshUtils::GenerateKDop(OutMesh, ECollisionType::DopZ10);
-      return true;
-    case ESDFGeometryType::Sphere :
-      RStaticMeshUtils::GenerateKDop(OutMesh, ECollisionType::DopX10);
-      return true;
-    default :
-      UE_LOG(LogTemp, Error, TEXT("GeometryType not supportet for %s."), *OutMesh->GetName());
-      return false;
-    }
-}
-
-USDFCollision* FSDFParser::CreateVirtualCollision(USDFLink* OutLink)
-{
-  USDFCollision* NewCollision = NewObject<USDFCollision>(OutLink, FName(*CurrentLinkName));
-  NewCollision->Name = CurrentLinkName;
-  NewCollision->Pose = FTransform();
-  NewCollision->Geometry = NewObject<USDFGeometry>(NewCollision);
-  NewCollision->Geometry->Type = ESDFGeometryType::Box;
-  NewCollision->Geometry->Size = FVector(0.5f, 0.5f, 0.5f);
-  NewCollision->Geometry->Mesh = CreateMesh(ESDFType::Collision, ESDFGeometryType::Box, CurrentLinkName, RStaticMeshUtils::GetGeometryParameter(NewCollision->Geometry));
-  return NewCollision;
 }
