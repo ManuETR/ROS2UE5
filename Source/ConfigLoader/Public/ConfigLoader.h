@@ -15,6 +15,7 @@ public:
 private:
   FString CommandLineArgValue();
   UWorld* World;
+  FTimerHandle TimerHandle_Stop;
 
   void LoadCustomConfig();
   void LoadROSConfig(TSharedPtr<FJsonObject> ROSConfig);
@@ -22,4 +23,7 @@ private:
   void LoadRobotsConfig(TArray<TSharedPtr<FJsonValue>> RobotsConfig);
   void LoadLoggingConfig(TSharedPtr<FJsonObject> LoggingConfig);
   void OnEditorInit(double);
+  void StartSimulationInEditor();
+  bool IsAutoStartEnabled();
+  int CommandLineArgMaxSimTime();
 };

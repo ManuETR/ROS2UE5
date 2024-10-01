@@ -27,6 +27,73 @@ void FConfigLoaderModule::ShutdownModule()
 	// we call this function before unloading the module.
 }
 
+void FConfigLoaderModule::StartSimulationInEditor()
+{
+  // Check if we are in the editor and not in standalone game mode
+  if (GEditor && GEditor->IsPlayingSessionInEditor() == false)
+  {
+    // Log that we're starting play in the editor
+    UE_LOG(LogTemp, Log, TEXT("Starting Play in Editor"));
+
+    // Trigger the Play In Editor session
+    FRequestPlaySessionParams PlaySessionParams;
+    PlaySessionParams.DestinationSlateViewport = nullptr;   // Play in the current viewport
+    PlaySessionParams.SessionDestination = EPlaySessionDestinationType::InProcess;  // Set it to PIE (Play In Editor)
+
+    // Automatically uses the currently selected viewport in the editor
+    PlaySessionParams.EditorPlaySettings = GetMutableDefault<ULevelEditorPlaySettings>();
+    PlaySessionParams.EditorPlaySettings->LastExecutedPlayModeType = PlayMode_InViewPort;
+    PlaySessionParams.StartLocation = FVector(100, -100, 80);
+    PlaySessionParams.StartRotation = FRotator(-15, 135, 0);
+
+    GEditor->RequestPlaySession(PlaySessionParams);
+    FWorldDelegates::OnStartGameInstance.AddLambda([this](UGameInstance* GameInstance) {
+      int TimeInSeconds = CommandLineArgMaxSimTime();
+      UE_LOG(LogTemp, Warning, TEXT("Starting sim timer %d"), TimeInSeconds);
+      GameInstance->GetWorld()->GetTimerManager().SetTimer(TimerHandle_Stop, []() {
+        UE_LOG(LogTemp, Warning, TEXT("Timer over!"));
+
+        UE_LOG(LogTemp, Log, TEXT("Stopping Play In Editor session"));
+        if (GEditor)
+        {
+          GEditor->RequestEndPlayMap();  // Stops the play session if it's still running.
+        }
+
+        FGenericPlatformMisc::RequestExit(false);
+
+        }, TimeInSeconds, false);
+    });
+  }
+  else
+  {
+    UE_LOG(LogTemp, Warning, TEXT("Play In Editor is already running or we are not in the editor!"));
+  }
+}
+
+bool FConfigLoaderModule::IsAutoStartEnabled()
+{
+  FString configValue;
+
+  // Check if the -autostart argument is present
+  if (FParse::Param(FCommandLine::Get(), TEXT("autostart"))) {
+    UE_LOG(LogTemp, Log, TEXT("[Autostart] Autostart enabled"));
+    return true;
+  }
+
+  UE_LOG(LogTemp, Log, TEXT("[Autostart] Autostart not found"));
+  return false;
+}
+
+int FConfigLoaderModule::CommandLineArgMaxSimTime()
+{
+  FString s;
+  if (FParse::Value(FCommandLine::Get(), TEXT("-maxSimTime="), s)) {
+    UE_LOG(LogTemp, Log, TEXT("[Config] max sim time %s"), *s);
+    return FCString::Atoi(*s);
+  }
+
+  return 10;
+}
 
 FString FConfigLoaderModule::CommandLineArgValue()
 {
@@ -46,7 +113,18 @@ FString FConfigLoaderModule::CommandLineArgValue()
 */ 
 void FConfigLoaderModule::LoadROSConfig(TSharedPtr<FJsonObject> ROSConfig) {
   TSharedPtr<FJsonObject> ROSBridgeConfig = ROSConfig->GetObjectField(TEXT("bridge"));
+
+  if (!World) {
+    UE_LOG(LogTemp, Error, TEXT("[Config] World is null! Cannot load ROS config."));
+    return;
+  }
+
   URoboSimGameInstance* GameInstance = (URoboSimGameInstance*) World->GetGameInstance();
+
+  if (!GameInstance) {
+    UE_LOG(LogTemp, Error, TEXT("[Config] GameInstance is null or not of type URoboSimGameInstance!"));
+    return;
+  }
 
   if (ROSBridgeConfig.IsValid()) {
     if (ROSBridgeConfig->HasField(TEXT("ip"))) {
@@ -162,6 +240,11 @@ void FConfigLoaderModule::OnEditorInit(double Duration) {
   UE_LOG(LogTemp, Log, TEXT("[Config] Start loading..."));
   LoadCustomConfig();
   UE_LOG(LogTemp, Log, TEXT("[Config] Finished"));
+
+  if (IsAutoStartEnabled())
+  {
+    StartSimulationInEditor();
+  }
 }
 
 void FConfigLoaderModule::LoadCustomConfig()
