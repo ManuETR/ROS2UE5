@@ -34,7 +34,7 @@ The plugin is built around four key modules:
     - [5.2 SeqLog Integration](#52-seqlog-integration)
   - [6. Testing the Plugin](#6-testing-the-plugin)
 - [Features](#features)
-- [Contributing](#contributing)
+- [Paper](#paper)
 - [License](#license)
 
 ## Requirements
@@ -140,6 +140,10 @@ After setup, you can test the ROS2 and Unreal Engine integration by following th
 - Configurable robotic simulation environment using **URoboSim**.
 - Editor support via **URoboSimEditor** for easy management of robot configurations and interactions.
 - Optional automation tools for easy simulation setup and control.
+
+## Paper
+This project is the result of my bachelor project. The paper can be found here:
+https://github.com/ManuETR/ROS2UE5/blob/main/docs/bachelor.pdf
 
 ## Acknowledgments
 
